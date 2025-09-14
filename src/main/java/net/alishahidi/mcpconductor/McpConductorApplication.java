@@ -13,6 +13,6 @@ import org.springframework.retry.annotation.EnableRetry;
 public class McpConductorApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(com.devops.mcp.McpConductorApplication.class, args);
+        SpringApplication.run(McpConductorApplication.class, args); // Fixed class reference
     }
 }

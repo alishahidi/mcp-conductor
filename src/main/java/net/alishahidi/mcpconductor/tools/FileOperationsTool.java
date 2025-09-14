@@ -1,14 +1,15 @@
 package net.alishahidi.mcpconductor.tools;
 
-import com.devops.mcp.service.FileService;
-import com.devops.mcp.security.PathValidator;
-import com.devops.mcp.model.FileOperation;
+import net.alishahidi.mcpconductor.service.FileService;
+import net.alishahidi.mcpconductor.security.PathValidator;
+import net.alishahidi.mcpconductor.model.FileOperation;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.stereotype.Component;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+
 
 @Component
 @RequiredArgsConstructor

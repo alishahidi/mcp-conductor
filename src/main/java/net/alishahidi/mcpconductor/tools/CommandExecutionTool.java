@@ -1,9 +1,9 @@
 package net.alishahidi.mcpconductor.tools;
 
-import com.devops.mcp.service.SSHService;
-import com.devops.mcp.security.CommandValidator;
-import com.devops.mcp.security.AuditLogger;
-import com.devops.mcp.model.CommandResult;
+import net.alishahidi.mcpconductor.service.SSHService;
+import net.alishahidi.mcpconductor.security.CommandValidator;
+import net.alishahidi.mcpconductor.security.AuditLogger;
+import net.alishahidi.mcpconductor.model.CommandResult;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.stereotype.Component;
 import lombok.RequiredArgsConstructor;

@@ -1,8 +1,13 @@
 package net.alishahidi.mcpconductor.config;
 
+import lombok.Data;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import java.util.HashMap;
+import java.util.Map;
+
 @Data
 @ConfigurationProperties(prefix = "ssh")
-class SSHProperties {
+public class SSHProperties {
     private String defaultHost = "localhost";
     private int defaultPort = 22;
     private String defaultUsername = "root";

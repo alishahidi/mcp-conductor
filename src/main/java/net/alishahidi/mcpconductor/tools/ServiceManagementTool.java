@@ -1,6 +1,6 @@
 package net.alishahidi.mcpconductor.tools;
 
-import com.devops.mcp.service.SystemService;
+import net.alishahidi.mcpconductor.service.SystemService;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.stereotype.Component;
 import lombok.RequiredArgsConstructor;

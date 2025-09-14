@@ -1,7 +1,7 @@
 package net.alishahidi.mcpconductor.tools;
 
-import com.devops.mcp.service.DockerService;
-import com.devops.mcp.model.DockerContainer;
+import net.alishahidi.mcpconductor.service.DockerService;
+import net.alishahidi.mcpconductor.model.DockerContainer;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.stereotype.Component;
 import lombok.RequiredArgsConstructor;

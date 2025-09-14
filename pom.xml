@@ -12,10 +12,10 @@
         <relativePath/>
     </parent>
 
-    <groupId>com.devops.mcp</groupId>
-    <artifactId>mcp-devops-commander</artifactId>
+    <groupId>net.alishahidi</groupId>
+    <artifactId>mcp-conductor</artifactId>
     <version>1.0.0</version>
-    <name>MCP DevOps Commander</name>
+    <name>MCP Conductor</name>
     <description>AI-powered DevOps automation server using Spring AI MCP</description>
 
     <properties>
@@ -28,6 +28,7 @@
         <guava.version>33.2.1-jre</guava.version>
         <testcontainers.version>1.19.8</testcontainers.version>
         <micrometer.version>1.13.2</micrometer.version>
+        <bucket4j.version>8.7.0</bucket4j.version>
     </properties>
 
     <dependencyManagement>
@@ -118,6 +119,19 @@
             <groupId>com.github.docker-java</groupId>
             <artifactId>docker-java-transport-httpclient5</artifactId>
             <version>${docker-java.version}</version>
+        </dependency>
+
+        <!-- Rate Limiting with Bucket4j -->
+        <dependency>
+            <groupId>com.bucket4j</groupId>
+            <artifactId>bucket4j-core</artifactId>
+            <version>${bucket4j.version}</version>
+        </dependency>
+
+        <!-- Jackson for JSON -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
         </dependency>
 
         <!-- Utilities -->
@@ -224,7 +238,7 @@
                         </exclude>
                     </excludes>
                     <image>
-                        <name>mcp-devops-commander:${project.version}</name>
+                        <name>mcp-conductor:${project.version}</name>
                         <env>
                             <BP_JVM_VERSION>21</BP_JVM_VERSION>
                         </env>
@@ -246,7 +260,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <argLine>-Xmx1024m -XX:MaxPermSize=256m</argLine>
+                    <argLine>-Xmx1024m</argLine>
                 </configuration>
             </plugin>
 
@@ -269,19 +283,6 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-
-            <!-- Maven Release Plugin -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-release-plugin</artifactId>
-                <version>3.0.1</version>
-                <configuration>
-                    <autoVersionSubmodules>true</autoVersionSubmodules>
-                    <useReleaseProfile>false</useReleaseProfile>
-                    <releaseProfiles>release</releaseProfiles>
-                    <goals>deploy</goals>
-                </configuration>
             </plugin>
         </plugins>
     </build>
