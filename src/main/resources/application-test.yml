@@ -1,0 +1,22 @@
+spring:
+  config:
+    activate:
+      on-profile: test
+
+ssh:
+  servers:
+    test:
+      host: localhost
+      port: 2222
+      username: test
+      password: test
+
+docker:
+  host: tcp://localhost:2375
+
+security:
+  enabled: false
+
+audit:
+  log:
+    enabled: false

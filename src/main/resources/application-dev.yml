@@ -1,0 +1,22 @@
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+  ai:
+    mcp:
+      server:
+        transport:
+          sse:
+            cors:
+              allowed-origins: "*"
+              allowed-methods: "*"
+              allowed-headers: "*"
+
+security:
+  enabled: false
+
+logging:
+  level:
+    root: DEBUG
+    com.devops.mcp: TRACE

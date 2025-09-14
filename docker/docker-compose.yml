@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  mcp-devops-commander:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mcp-devops-commander
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SSH_DEFAULT_HOST=${SSH_HOST}
+      - SSH_DEFAULT_USERNAME=${SSH_USERNAME}
+      - SSH_PRIVATE_KEY_PATH=/app/config/ssh_key
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - SECURITY_USER=${SECURITY_USER:-admin}
+      - SECURITY_PASSWORD=${SECURITY_PASSWORD:-admin}
+    volumes:
+      - ./logs:/app/logs
+      - ./config:/app/config:ro
+      - ${SSH_KEY_PATH}:/app/config/ssh_key:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - mcp-network
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: mcp-prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    networks:
+      - mcp-network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: mcp-grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+    networks:
+      - mcp-network
+
+networks:
+  mcp-network:
+    driver: bridge
+
+volumes:
+  prometheus_data:
+  grafana_data:
