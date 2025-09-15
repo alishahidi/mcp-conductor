@@ -2,7 +2,6 @@ package net.alishahidi.mcpconductor.security;
 
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
-import io.github.bucket4j.Bucket4j;
 import io.github.bucket4j.Refill;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -64,7 +63,7 @@ public class RateLimiter {
     private Bucket createBucket() {
         Bandwidth limit = Bandwidth.classic(capacity,
                 Refill.intervally(refillTokens, refillDuration));
-        return Bucket4j.builder()
+        return Bucket.builder()
                 .addLimit(limit)
                 .build();
     }

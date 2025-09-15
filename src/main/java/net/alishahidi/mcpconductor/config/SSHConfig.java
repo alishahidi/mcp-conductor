@@ -2,6 +2,7 @@ package net.alishahidi.mcpconductor.config;
 
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
+import net.alishahidi.mcpconductor.util.SSHConnectionPool;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

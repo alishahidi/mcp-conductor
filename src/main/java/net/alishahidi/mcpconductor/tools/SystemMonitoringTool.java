@@ -1,5 +1,6 @@
 package net.alishahidi.mcpconductor.tools;
 
+import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.stereotype.Component;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

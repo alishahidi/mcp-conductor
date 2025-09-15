@@ -1,8 +1,8 @@
 package net.alishahidi.mcpconductor.service;
 
-import com.devops.mcp.config.SSHProperties;
-import com.devops.mcp.model.CommandResult;
-import com.devops.mcp.util.SSHConnectionPool;
+import net.alishahidi.mcpconductor.config.SSHProperties;
+import net.alishahidi.mcpconductor.model.CommandResult;
+import net.alishahidi.mcpconductor.util.SSHConnectionPool;
 import com.jcraft.jsch.*;
 import org.springframework.stereotype.Service;
 import org.springframework.retry.annotation.Backoff;

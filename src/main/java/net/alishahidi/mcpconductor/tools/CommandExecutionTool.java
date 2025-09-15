@@ -5,6 +5,7 @@ import net.alishahidi.mcpconductor.security.CommandValidator;
 import net.alishahidi.mcpconductor.security.AuditLogger;
 import net.alishahidi.mcpconductor.model.CommandResult;
 import org.springframework.ai.tool.annotation.Tool;
+import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Component;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,10 +19,11 @@ public class CommandExecutionTool {
     private final CommandValidator commandValidator;
     private final AuditLogger auditLogger;
 
-    @Tool(description = "Execute a shell command on the remote server")
-    public CommandResult executeCommand(String command,
-                                        String serverName,
-                                        boolean useSudo) {
+    @Tool(name = "execute_command", description = "Execute a single command on a remote server via SSH. Use this to run any Linux/Unix command on connected servers. Perfect for system administration, file operations, process management, and DevOps tasks.")
+    public CommandResult executeCommand(
+            @ToolParam(description = "The Linux/Unix command to execute (e.g., 'ls -la', 'ps aux', 'systemctl status nginx', 'docker ps'). Avoid interactive commands.") String command,
+            @ToolParam(description = "The target server identifier/name to execute the command on. Use 'localhost' for local execution or specific server names like 'production', 'staging' as configured.") String serverName,
+            @ToolParam(description = "Whether to execute the command with sudo privileges (true/false). Use true for administrative commands that require root access.") boolean useSudo) {
         log.info("Executing command: {} on server: {}", command, serverName);
 
         // Validate command
@@ -40,10 +42,11 @@ public class CommandExecutionTool {
         }
     }
 
-    @Tool(description = "Execute multiple commands in sequence on the remote server")
-    public CommandResult executeScript(String script,
-                                       String serverName,
-                                       boolean useSudo) {
+    @Tool(name = "execute_script", description = "Execute a multi-line script (bash/shell script) on a remote server via SSH. Perfect for running complex automation scripts, deployment scripts, or multiple related commands sequentially.")
+    public CommandResult executeScript(
+            @ToolParam(description = "Multi-line bash/shell script content with commands separated by newlines. Each line will be executed sequentially. Example: 'cd /var/www\\nls -la\\nps aux | grep nginx'") String script,
+            @ToolParam(description = "The target server identifier/name to execute the script on. Use 'localhost' for local execution or specific server names like 'production', 'staging' as configured.") String serverName,
+            @ToolParam(description = "Whether to execute all script commands with sudo privileges (true/false). Use true when script contains administrative commands requiring root access.") boolean useSudo) {
         log.info("Executing script on server: {}", serverName);
 
         String[] commands = script.split("\n");

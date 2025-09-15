@@ -8,7 +8,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.4</version>
+        <version>3.5.5</version>
         <relativePath/>
     </parent>
 
@@ -20,7 +20,7 @@
 
     <properties>
         <java.version>21</java.version>
-        <spring-ai.version>1.0.1</spring-ai.version>
+        <spring-ai.version>1.0.0</spring-ai.version>
         <spring-cloud.version>2023.0.3</spring-cloud.version>
         <jsch.version>0.2.18</jsch.version>
         <docker-java.version>3.3.6</docker-java.version>
@@ -28,7 +28,7 @@
         <guava.version>33.2.1-jre</guava.version>
         <testcontainers.version>1.19.8</testcontainers.version>
         <micrometer.version>1.13.2</micrometer.version>
-        <bucket4j.version>8.7.0</bucket4j.version>
+        <bucket4j.version>7.6.0</bucket4j.version>
     </properties>
 
     <dependencyManagement>
@@ -90,15 +90,16 @@
             <artifactId>spring-boot-starter-cache</artifactId>
         </dependency>
 
-        <!-- Spring AI MCP Server Dependencies -->
+        <!-- Spring Retry -->
         <dependency>
-            <groupId>org.springframework.ai</groupId>
-            <artifactId>spring-ai-starter-mcp-server</artifactId>
+            <groupId>org.springframework.retry</groupId>
+            <artifactId>spring-retry</artifactId>
         </dependency>
 
+        <!-- Spring AI MCP Server -->
         <dependency>
             <groupId>org.springframework.ai</groupId>
-            <artifactId>spring-ai-starter-mcp-server-webflux</artifactId>
+            <artifactId>spring-ai-starter-mcp-server-webmvc</artifactId>
         </dependency>
 
         <!-- SSH Library -->
@@ -111,7 +112,7 @@
         <!-- Docker Client -->
         <dependency>
             <groupId>com.github.docker-java</groupId>
-            <artifactId>docker-java-core</artifactId>
+            <artifactId>docker-java</artifactId>
             <version>${docker-java.version}</version>
         </dependency>
 
@@ -123,7 +124,7 @@
 
         <!-- Rate Limiting with Bucket4j -->
         <dependency>
-            <groupId>com.bucket4j</groupId>
+            <groupId>com.github.vladimir-bukhtoyarov</groupId>
             <artifactId>bucket4j-core</artifactId>
             <version>${bucket4j.version}</version>
         </dependency>
@@ -237,12 +238,6 @@
                             <artifactId>lombok</artifactId>
                         </exclude>
                     </excludes>
-                    <image>
-                        <name>mcp-conductor:${project.version}</name>
-                        <env>
-                            <BP_JVM_VERSION>21</BP_JVM_VERSION>
-                        </env>
-                    </image>
                 </configuration>
             </plugin>
 
@@ -305,18 +300,4 @@
             </releases>
         </repository>
     </repositories>
-
-    <profiles>
-        <profile>
-            <id>native</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.graalvm.buildtools</groupId>
-                        <artifactId>native-maven-plugin</artifactId>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 </project>

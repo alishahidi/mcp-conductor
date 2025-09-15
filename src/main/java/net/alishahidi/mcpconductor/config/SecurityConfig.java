@@ -1,5 +1,7 @@
 package net.alishahidi.mcpconductor.config;
 
+import net.alishahidi.mcpconductor.security.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -8,6 +10,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.config.Customizer;
 import org.springframework.beans.factory.annotation.Value;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -37,22 +41,26 @@ public class SecurityConfig {
     }
 
     @Bean
-    public CommandValidator commandValidator() {
-        return new CommandValidator();
+    public CommandValidator commandValidator(@Value("${security.command.strict-mode:true}") boolean strictMode,
+                                             @Value("${security.command.allowed}") List<String> allowedCommands) {
+        return new CommandValidator(strictMode, allowedCommands);
     }
 
     @Bean
-    public PathValidator pathValidator() {
-        return new PathValidator();
+    public PathValidator pathValidator(@Value("${security.path.allowed}") List<String> allowedPaths,
+                                       @Value("${security.path.blocked}") List<String> blockedPaths) {
+        return new PathValidator(allowedPaths, blockedPaths);
     }
 
     @Bean
-    public RateLimiter rateLimiter() {
-        return new RateLimiter();
+    public RateLimiter rateLimiter(@Value("${rate-limit.capacity:100}") int capacity,
+                                   @Value("${rate-limit.refill-tokens:100}") int refillTokens,
+                                   @Value("${rate-limit.refill-duration-minutes:1}") int refillDurationMinutes) {
+        return new RateLimiter(capacity, refillTokens, refillDurationMinutes);
     }
 
     @Bean
-    public AuditLogger auditLogger() {
-        return new AuditLogger();
+    public AuditLogger auditLogger(ObjectMapper objectMapper) {
+        return new AuditLogger(objectMapper);
     }
 }
