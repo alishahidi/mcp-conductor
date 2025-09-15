@@ -15,10 +15,15 @@ import java.util.Map;
 public class NginxSite {
     private String siteName;
     private String serverName;
-    private int listenPort;
+    private int port;
+    private int sslPort;
     private boolean sslEnabled;
     private String documentRoot;
-    private ProxyConfig proxyConfig;
+    private String proxyPass;
+    private String sslCertificate;
+    private String sslCertificateKey;
+    private String accessLog;
+    private String errorLog;
     private List<Location> locations;
     private Map<String, String> customDirectives;
     private boolean enabled;

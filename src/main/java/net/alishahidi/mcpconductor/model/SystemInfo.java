@@ -5,6 +5,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -14,62 +17,24 @@ public class SystemInfo {
     private String operatingSystem;
     private String kernelVersion;
     private String architecture;
-    private CpuInfo cpu;
-    private MemoryInfo memory;
-    private DiskInfo disk;
-    private NetworkInfo network;
-    private Long uptime;
-    private Double loadAverage;
-
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class CpuInfo {
-        private int cores;
-        private String model;
-        private double usagePercent;
-        private double temperature;
+    private String uptime;
+    private String memoryInfo;
+    private String diskUsage;
+    private String loadAverage;
+    private Integer cpuCores;
+    
+    public Map<String, Object> toMap() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("hostname", hostname);
+        map.put("operatingSystem", operatingSystem);
+        map.put("kernelVersion", kernelVersion);
+        map.put("architecture", architecture);
+        map.put("uptime", uptime);
+        map.put("memoryInfo", memoryInfo);
+        map.put("diskUsage", diskUsage);
+        map.put("loadAverage", loadAverage);
+        map.put("cpuCores", cpuCores);
+        return map;
     }
 
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class MemoryInfo {
-        private long totalBytes;
-        private long usedBytes;
-        private long freeBytes;
-        private long availableBytes;
-        private double usagePercent;
-        private long swapTotalBytes;
-        private long swapUsedBytes;
-    }
-
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class DiskInfo {
-        private String filesystem;
-        private long totalBytes;
-        private long usedBytes;
-        private long availableBytes;
-        private double usagePercent;
-        private String mountPoint;
-    }
-
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class NetworkInfo {
-        private String interfaceName;
-        private String ipAddress;
-        private String macAddress;
-        private long rxBytes;
-        private long txBytes;
-        private long rxPackets;
-        private long txPackets;
-    }
 }

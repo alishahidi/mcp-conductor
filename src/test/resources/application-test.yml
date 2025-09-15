@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: mcp-conductor-test
+
+  ai:
+    mcp:
+      server:
+        name: mcp-devops-commander-test
+        version: 1.0.0-test
+        type: SYNC
+
+security:
+  enabled: false
+  command:
+    strict-mode: false
+    allowed:
+      - ls
+      - pwd
+      - echo
+      - cat
+
+ssh:
+  default-host: localhost
+  default-username: testuser
+  connection-timeout: 5000
+  command-timeout: 10000
+
+logging:
+  level:
+    net.alishahidi.mcpconductor: DEBUG
+    org.springframework.ai: DEBUG

@@ -31,7 +31,9 @@ public class CommandValidator {
             Pattern.compile(".*;\\s*rm\\s+-rf"),
             Pattern.compile(".*&&\\s*rm\\s+-rf"),
             Pattern.compile(".*\\|\\s*sh"),
-            Pattern.compile(".*\\|\\s*bash")
+            Pattern.compile(".*\\|\\s*bash"),
+            Pattern.compile(".*;.*"),         // General command chaining with semicolon
+            Pattern.compile(".*&&.*")        // General command chaining with &&
     );
 
     private final Set<String> allowedCommands;
