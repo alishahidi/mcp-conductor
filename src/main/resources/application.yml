@@ -1,187 +1,32 @@
 spring:
   application:
-    name: mcp-devops-commander
-
+    name: mcp-conductor
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+  main:
+    web-application-type: ${SPRING_MAIN_WEB_APPLICATION_TYPE:servlet}
+    banner-mode: ${SPRING_MAIN_BANNER_MODE:console}
+  
   ai:
     mcp:
       server:
-        name: mcp-devops-commander
-        version: 1.0.0
-        type: ASYNC  # or SYNC
-        transport:
-          sse:
-            enabled: true
-            port: 8080
-          stdio:
-            enabled: false
-
-  profiles:
-    active: ${SPRING_PROFILES_ACTIVE:dev}
-
-  security:
-    user:
-      name: ${SECURITY_USER:admin}
-      password: ${SECURITY_PASSWORD:admin}
-
-  cache:
-    type: caffeine
-    caffeine:
-      spec: maximumSize=500,expireAfterWrite=5m
-
-  task:
-    execution:
-      pool:
-        core-size: 10
-        max-size: 50
-        queue-capacity: 500
-    scheduling:
-      pool:
-        size: 5
+        name: ${SPRING_AI_MCP_SERVER_NAME:mcp-conductor}
+        version: ${SPRING_AI_MCP_SERVER_VERSION:1.0.0}
+        type: ${SPRING_AI_MCP_SERVER_TYPE:SYNC}
 
 server:
   port: ${SERVER_PORT:8080}
-  servlet:
-    context-path: /
-  compression:
-    enabled: true
-  error:
-    include-message: always
-    include-stacktrace: on_param
+
+logging:
+  level:
+    net.alishahidi.mcpconductor: ${LOG_LEVEL:INFO}
+    org.springframework.ai.mcp: ${MCP_LOG_LEVEL:DEBUG}
 
 management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,prometheus
-      base-path: /actuator
+        include: health,info,prometheus,metrics
   endpoint:
     health:
-      show-details: when-authorized
-  metrics:
-    export:
-      prometheus:
-        enabled: true
-  tracing:
-    sampling:
-      probability: 1.0
-
-# SSH Configuration
-ssh:
-  default-host: ${SSH_DEFAULT_HOST:localhost}
-  default-port: ${SSH_DEFAULT_PORT:22}
-  default-username: ${SSH_DEFAULT_USERNAME:root}
-  private-key-path: ${SSH_PRIVATE_KEY_PATH:}
-  private-key-passphrase: ${SSH_PRIVATE_KEY_PASSPHRASE:}
-  default-password: ${SSH_DEFAULT_PASSWORD:}
-  connection-timeout: 10000
-  command-timeout: 30000
-  max-pool-size: 10
-  servers:
-    production:
-      host: ${PROD_SERVER_HOST:}
-      port: ${PROD_SERVER_PORT:22}
-      username: ${PROD_SERVER_USERNAME:}
-      password: ${PROD_SERVER_PASSWORD:}
-      sudo-password: ${PROD_SUDO_PASSWORD:}
-    staging:
-      host: ${STAGING_SERVER_HOST:}
-      port: ${STAGING_SERVER_PORT:22}
-      username: ${STAGING_SERVER_USERNAME:}
-      password: ${STAGING_SERVER_PASSWORD:}
-
-# Docker Configuration
-docker:
-  host: ${DOCKER_HOST:unix:///var/run/docker.sock}
-  api-version: ${DOCKER_API_VERSION:}
-  registry:
-    url: ${DOCKER_REGISTRY_URL:}
-    username: ${DOCKER_REGISTRY_USERNAME:}
-    password: ${DOCKER_REGISTRY_PASSWORD:}
-  tls:
-    verify: ${DOCKER_TLS_VERIFY:false}
-  cert-path: ${DOCKER_CERT_PATH:}
-
-# Security Configuration
-security:
-  enabled: ${SECURITY_ENABLED:true}
-  command:
-    strict-mode: ${COMMAND_STRICT_MODE:true}
-    allowed:
-      - ls
-      - pwd
-      - cat
-      - grep
-      - find
-      - df
-      - free
-      - top
-      - ps
-      - systemctl
-      - docker
-      - git
-      - apt
-      - apt-get
-      - yum
-      - dnf
-      - curl
-      - wget
-      - tar
-      - unzip
-      - cp
-      - mv
-      - mkdir
-      - touch
-      - chmod
-      - chown
-      - nginx
-      - service
-  path:
-    allowed:
-      - /home
-      - /var
-      - /opt
-      - /tmp
-      - /usr/local
-    blocked:
-      - /etc/passwd
-      - /etc/shadow
-      - /etc/sudoers
-      - /root/.ssh
-      - /etc/ssh
-
-# Rate Limiting
-rate-limit:
-  capacity: 100
-  refill-tokens: 100
-  refill-duration-minutes: 1
-
-# Audit Configuration
-audit:
-  log:
-    enabled: ${AUDIT_ENABLED:true}
-    file: ${AUDIT_LOG_FILE:logs/audit.log}
-
-# Async Configuration
-async:
-  executor:
-    core-pool-size: 10
-    max-pool-size: 50
-    queue-capacity: 500
-    thread-name-prefix: mcp-async-
-
-# Logging
-logging:
-  level:
-    root: INFO
-    com.devops.mcp: DEBUG
-    org.springframework.ai: DEBUG
-    org.springframework.web: INFO
-    org.springframework.security: DEBUG
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
-    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
-  file:
-    name: logs/application.log
-    max-size: 10MB
-    max-history: 30
-
+      show-details: always

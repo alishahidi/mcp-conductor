@@ -1,6 +1,7 @@
 package net.alishahidi.mcpconductor.service;
 
 import net.alishahidi.mcpconductor.config.SSHProperties;
+import net.alishahidi.mcpconductor.exception.*;
 import net.alishahidi.mcpconductor.model.CommandResult;
 import net.alishahidi.mcpconductor.util.SSHConnectionPool;
 import com.jcraft.jsch.*;
@@ -21,15 +22,42 @@ public class SSHService {
     private final SSHConnectionPool connectionPool;
     private final SSHProperties sshProperties;
 
-    @Retryable(value = JSchException.class, maxAttempts = 3, backoff = @Backoff(delay = 1000))
+    @Retryable(
+            value = {SSHConnectionException.class},
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 1000, multiplier = 2)
+    )
     public CommandResult executeCommand(String serverName, String command, boolean useSudo) {
         Session session = null;
         ChannelExec channel = null;
 
         try {
-            session = connectionPool.getConnection(serverName);
+            // Validate server configuration
+            if (!sshProperties.getServers().containsKey(serverName) &&
+                    !serverName.equals("localhost")) {
+                throw new ConfigurationException(
+                        "Server configuration not found",
+                        serverName,
+                        "application.yml"
+                );
+            }
+
+            // Get connection with proper exception handling
+            try {
+                session = connectionPool.getConnection(serverName);
+            } catch (JSchException e) {
+                throw new SSHConnectionException(
+                        "Failed to establish SSH connection",
+                        sshProperties.getServers().get(serverName).getHost(),
+                        sshProperties.getServers().get(serverName).getPort(),
+                        sshProperties.getServers().get(serverName).getUsername(),
+                        e
+                );
+            }
+
             channel = (ChannelExec) session.openChannel("exec");
 
+            // Prepare command with sudo if needed
             String finalCommand = prepareSudoCommand(serverName, command, useSudo);
             channel.setCommand(finalCommand);
 
@@ -39,10 +67,28 @@ public class SSHService {
             channel.setOutputStream(outputStream);
             channel.setErrStream(errorStream);
 
-            channel.connect(sshProperties.getCommandTimeout());
+            try {
+                channel.connect(sshProperties.getCommandTimeout());
+            } catch (JSchException e) {
+                throw new CommandExecutionException(
+                        "Failed to execute command: " + e.getMessage(),
+                        command,
+                        serverName,
+                        -1
+                );
+            }
 
-            // Wait for command completion
+            // Wait for command completion with timeout
+            long startTime = System.currentTimeMillis();
             while (!channel.isClosed()) {
+                if (System.currentTimeMillis() - startTime > sshProperties.getCommandTimeout()) {
+                    throw new CommandExecutionException(
+                            "Command execution timeout exceeded",
+                            command,
+                            serverName,
+                            -1
+                    );
+                }
                 Thread.sleep(100);
             }
 
@@ -50,15 +96,44 @@ public class SSHService {
             String output = outputStream.toString(StandardCharsets.UTF_8);
             String error = errorStream.toString(StandardCharsets.UTF_8);
 
-            if (exitCode == 0) {
-                return CommandResult.success(output);
-            } else {
-                return CommandResult.failure(error.isEmpty() ? output : error);
+            CommandResult result = CommandResult.builder()
+                    .success(exitCode == 0)
+                    .output(output)
+                    .error(error)
+                    .exitCode(exitCode)
+                    .executionTimeMs(System.currentTimeMillis() - startTime)
+                    .build();
+
+            if (exitCode != 0) {
+                log.warn("Command failed with exit code {}: {} on {}",
+                        exitCode, command, serverName);
             }
 
+            return result;
+
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new CommandExecutionException(
+                    "Command execution was interrupted",
+                    command,
+                    serverName,
+                    -1
+            );
         } catch (Exception e) {
-            log.error("Failed to execute command: {} on server: {}", command, serverName, e);
-            return CommandResult.failure(e.getMessage());
+            if (e instanceof SSHConnectionException) {
+                throw (SSHConnectionException) e;
+            } else if (e instanceof CommandExecutionException) {
+                throw (CommandExecutionException) e;
+            } else if (e instanceof ConfigurationException) {
+                throw (ConfigurationException) e;
+            }
+            log.error("Unexpected error executing command: {} on {}", command, serverName, e);
+            throw new CommandExecutionException(
+                    "Unexpected error: " + e.getMessage(),
+                    command,
+                    serverName,
+                    -1
+            );
         } finally {
             if (channel != null) {
                 channel.disconnect();
@@ -76,35 +151,39 @@ public class SSHService {
             sftpChannel = (ChannelSftp) session.openChannel("sftp");
             sftpChannel.connect();
 
-            sftpChannel.put(localPath, remotePath);
-            log.info("File uploaded successfully from {} to {}", localPath, remotePath);
-
-        } catch (Exception e) {
-            log.error("Failed to upload file", e);
-            throw new RuntimeException("File upload failed: " + e.getMessage());
-        } finally {
-            if (sftpChannel != null) {
-                sftpChannel.disconnect();
+            // Check if local file exists
+            File localFile = new File(localPath);
+            if (!localFile.exists()) {
+                throw new ResourceNotFoundException("Local file", localPath);
             }
-            connectionPool.returnConnection(serverName, session);
-        }
-    }
 
-    public void downloadFile(String serverName, String remotePath, String localPath) {
-        Session session = null;
-        ChannelSftp sftpChannel = null;
-
-        try {
-            session = connectionPool.getConnection(serverName);
-            sftpChannel = (ChannelSftp) session.openChannel("sftp");
-            sftpChannel.connect();
-
-            sftpChannel.get(remotePath, localPath);
-            log.info("File downloaded successfully from {} to {}", remotePath, localPath);
+            try {
+                sftpChannel.put(localPath, remotePath);
+                log.info("File uploaded successfully from {} to {}", localPath, remotePath);
+            } catch (SftpException e) {
+                throw new FileOperationException(
+                        "Failed to upload file: " + e.getMessage(),
+                        new File(remotePath).toPath(),
+                        FileOperationException.OperationType.WRITE,
+                        serverName,
+                        e
+                );
+            }
 
         } catch (Exception e) {
-            log.error("Failed to download file", e);
-            throw new RuntimeException("File download failed: " + e.getMessage());
+            if (e instanceof FileOperationException) {
+                throw (FileOperationException) e;
+            } else if (e instanceof ResourceNotFoundException) {
+                throw (ResourceNotFoundException) e;
+            }
+            log.error("Failed to upload file", e);
+            throw new FileOperationException(
+                    "File upload failed: " + e.getMessage(),
+                    new File(remotePath).toPath(),
+                    FileOperationException.OperationType.WRITE,
+                    serverName,
+                    e
+            );
         } finally {
             if (sftpChannel != null) {
                 sftpChannel.disconnect();
@@ -120,7 +199,8 @@ public class SSHService {
 
         SSHProperties.ServerConfig config = sshProperties.getServers().get(serverName);
         if (config != null && config.getSudoPassword() != null) {
-            return String.format("echo '%s' | sudo -S %s", config.getSudoPassword(), command);
+            return String.format("echo '%s' | sudo -S %s",
+                    config.getSudoPassword(), command);
         }
 
         return "sudo " + command;

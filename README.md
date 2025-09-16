@@ -1,332 +1,438 @@
-# 🚀 MCP DevOps Commander
+# 🚀 MCP Conductor
 
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3.4-brightgreen.svg)](https://spring.io/projects/spring-boot)
-[![Spring AI](https://img.shields.io/badge/Spring%20AI-1.0.1-blue.svg)](https://spring.io/projects/spring-ai)
-[![Java](https://img.shields.io/badge/Java-21-orange.svg)](https://www.oracle.com/java/)
-[![MCP](https://img.shields.io/badge/MCP-Compatible-purple.svg)](https://modelcontextprotocol.io)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+<div align="center">
 
-> Enterprise-grade Model Context Protocol (MCP) server for AI-powered DevOps automation built with Spring Boot and Spring AI
+![MCP Conductor](https://img.shields.io/badge/MCP-Conductor-blue?style=for-the-badge&logo=spring&logoColor=white)
+
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.5-brightgreen.svg?style=flat-square)](https://spring.io/projects/spring-boot)
+[![Spring AI](https://img.shields.io/badge/Spring%20AI-1.0.0-blue.svg?style=flat-square)](https://spring.io/projects/spring-ai)
+[![Java](https://img.shields.io/badge/Java-21-orange.svg?style=flat-square)](https://www.oracle.com/java/)
+[![MCP](https://img.shields.io/badge/MCP-Compatible-purple.svg?style=flat-square)](https://modelcontextprotocol.io)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
+[![Production Ready](https://img.shields.io/badge/Production-Ready-green.svg?style=flat-square)]()
+
+**AI-Powered DevOps Automation Server Using Spring AI MCP**  
+*Enterprise-grade infrastructure management through natural language*
+
+</div>
+
+---
+
+## 🎯 What is MCP Conductor?
+
+MCP Conductor is a production-ready DevOps automation server that enables **AI assistants to manage your infrastructure through natural language**. Built on Spring Boot and the Model Context Protocol (MCP), it provides secure, validated operations for SSH command execution, Docker management, file operations, and system monitoring.
+
+### 💡 Real-World Impact
+
+Instead of writing complex scripts or memorizing commands, simply tell Claude:
+- *"Deploy my Node.js app to production with zero downtime"*
+- *"Check disk space across all servers and alert if any are above 80%"*
+- *"Scale up my Docker containers and verify health checks"*
+- *"Update security patches on staging and restart affected services"*
 
 ## ✨ Features
 
-### 🛠️ DevOps Tools
-- **Command Execution**: Secure SSH command execution with validation
-- **Docker Management**: Full container lifecycle management
-- **Package Management**: Multi-platform package installation (apt, yum, brew)
-- **Service Control**: Systemd service management
-- **File Operations**: Secure file manipulation with path validation
-- **Git Operations**: Repository management and deployment
-- **Nginx Configuration**: Web server setup and management
-- **System Monitoring**: Real-time resource monitoring
+### 🔒 **Enterprise Security**
+- **Multi-layer validation**: Command whitelist → Sanitization → Path validation → Execution
+- **Comprehensive audit logging**: Every operation tracked with full context
+- **Rate limiting**: Token bucket algorithm prevents abuse
+- **SSH key authentication**: Secure server access without password exposure
 
-### 🔒 Security Features
-- Command validation and sanitization
-- Path traversal prevention
-- Rate limiting per client
-- Comprehensive audit logging
-- SSH key authentication
-- Role-based access control
-- Secure credential management
+### 🛠️ **Complete DevOps Toolkit** 
+- **SSH Command Execution**: Run validated commands on remote servers
+- **Docker Management**: Container lifecycle, image management, logs, health checks
+- **File Operations**: Read, write, manage files with path traversal protection
+- **System Monitoring**: CPU, memory, disk usage, process management
+- **Service Management**: Start, stop, restart systemd services
+- **Package Management**: Install, update, search packages (apt/yum/dnf)
+- **Git Operations**: Clone, pull, checkout, branch management
+- **Nginx Configuration**: Virtual host setup, SSL configuration, reverse proxies
 
-### 🏗️ Enterprise Features
-- Connection pooling for SSH
-- Async/reactive operations
-- Circuit breaker pattern
-- Retry mechanisms
-- Health checks and metrics
-- Distributed tracing
-- Prometheus metrics export
-- Docker & Kubernetes ready
+### 📊 **Production-Ready Monitoring**
+- **Prometheus metrics**: Performance, error rates, usage statistics
+- **Health indicators**: SSH connectivity, Docker daemon, system resources
+- **Spring Boot Actuator**: Management endpoints, application insights
+- **Custom dashboards**: Grafana integration with pre-built dashboards
 
-## 📋 Prerequisites
-
-- Java 21 or higher
-- Maven 3.8+
-- Docker (optional)
-- SSH access to target servers
-- Claude Desktop or compatible MCP client
+### ⚡ **High Performance**
+- **Connection pooling**: Efficient SSH connection reuse
+- **Async operations**: Non-blocking command execution
+- **Circuit breakers**: Resilience against service failures
+- **Resource optimization**: Minimal memory footprint, fast startup
 
 ## 🚀 Quick Start
 
-### 1. Clone the Repository
+### Prerequisites
+- **Java 21+** (required for Spring Boot 3.5.5)
+- **Maven 3.8+** for building
+- **SSH access** to target servers
+- **Docker** (optional, for container management)
+
+### 1. Clone and Build
 ```bash
-git clone https://github.com/yourusername/mcp-devops-commander.git
-cd mcp-devops-commander
+git clone https://github.com/alishahidi/mcp-conductor.git
+cd mcp-conductor
+
+# Set Java environment
+export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
+
+# Build the project
+mvn clean package -DskipTests
 ```
 
 ### 2. Configure Environment
 ```bash
-cp .env.example .env
-# Edit .env with your server details
+# Copy environment template
+cp config/example.env config/http.env
+
+# Edit configuration
+nano config/http.env
 ```
 
-### 3. Build the Application
+**Essential Settings:**
+```env
+# SSH Configuration
+SSH_DEFAULT_HOST=your-server.com
+SSH_DEFAULT_USERNAME=your-username
+SSH_PRIVATE_KEY_PATH=/path/to/your/ssh/key
+
+# Security
+SECURITY_USER=admin
+SECURITY_PASSWORD=your-secure-password
+
+# Optional: Docker support
+DOCKER_HOST=unix:///var/run/docker.sock
+```
+
+### 3. Start MCP Conductor
+
+**HTTP Mode (Production API)**
 ```bash
-mvn clean package
+# Linux/macOS
+./scripts/run-http-mode.sh
+
+# Windows
+.\scripts\run-http-mode.bat
+
+# Verify it's running
+curl http://localhost:8080/actuator/health
+# Expected: {"status":"UP"}
 ```
 
-### 4. Run the Application
-
-#### Using Java:
+**STDIO Mode (Claude Code Integration)**
 ```bash
-java -jar target/mcp-devops-commander.jar
+# Linux/macOS
+./scripts/run-stdio-mode.sh
+
+# Windows
+.\scripts\run-stdio-mode.bat
 ```
 
-#### Using Docker:
+### 4. Test Basic Operations
 ```bash
-docker-compose up -d
+# Check application info
+curl http://localhost:8080/actuator/info
+
+# View available endpoints
+curl http://localhost:8080/actuator
+
+# Test with authentication
+curl -u admin:your-password http://localhost:8080/actuator/metrics
 ```
 
-#### Using Kubernetes:
-```bash
-kubectl apply -f k8s/
-```
+## 🔧 Available Operations
 
-### 5. Configure Claude Desktop
+### 🖥️ **Server Management**
+- Execute commands with security validation
+- Run complex bash scripts safely
+- Monitor system resources (CPU, memory, disk)
+- Track running processes
+- Manage system services
 
-Add to `~/.claude/claude_desktop_config.json`:
+### 🐳 **Container Operations**
+- List and manage Docker containers
+- Pull and deploy images
+- View container logs and status
+- Execute commands inside containers
+- Health check monitoring
 
-```json
-{
-  "mcpServers": {
-    "devops-commander": {
-      "url": "http://localhost:8080",
-      "transport": "sse"
-    }
-  }
-}
-```
+### 📁 **File Management**
+- Read and write configuration files
+- List directory contents with filtering
+- Manage file permissions securely
+- Path traversal protection
+- Bulk file operations
 
-## 📖 Configuration
+### 📦 **Package Management**
+- Install software packages (apt/yum/dnf)
+- Update system packages
+- Search package repositories
+- Dependency management
 
-### Application Properties
+### 🌐 **Web Server Configuration**
+- Create Nginx virtual hosts
+- Configure SSL certificates
+- Set up reverse proxies
+- Enable/disable sites
+- Configuration validation
 
-Key configuration in `application.yml`:
+### 🔄 **Version Control**
+- Clone Git repositories
+- Pull latest changes
+- Switch branches and tags
+- Deploy from repositories
 
-```yaml
-spring:
-  ai:
-    mcp:
-      server:
-        name: mcp-devops-commander
-        type: ASYNC  # or SYNC
-
-ssh:
-  servers:
-    production:
-      host: prod.example.com
-      username: deploy
-      private-key-path: /path/to/key
-    staging:
-      host: staging.example.com
-      username: deploy
-
-docker:
-  host: unix:///var/run/docker.sock
-
-security:
-  command:
-    strict-mode: true
-```
-
-### Environment Variables
-
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `SPRING_PROFILES_ACTIVE` | Active Spring profile | `dev` |
-| `SSH_DEFAULT_HOST` | Default SSH host | `localhost` |
-| `SSH_DEFAULT_USERNAME` | Default SSH username | `root` |
-| `SSH_PRIVATE_KEY_PATH` | Path to SSH private key | - |
-| `DOCKER_HOST` | Docker daemon URL | `unix:///var/run/docker.sock` |
-| `SECURITY_USER` | Basic auth username | `admin` |
-| `SECURITY_PASSWORD` | Basic auth password | `admin` |
-
-## 🔧 Available MCP Tools
-
-### Command Execution
-```
-Execute shell commands on remote servers
-Parameters: command, serverName, useSudo
-```
-
-### Docker Management
-```
-Manage Docker containers and images
-Operations: list, pull, run, stop, remove, logs, exec
-```
-
-### Package Management
-```
-Install and manage system packages
-Supports: apt, yum, dnf, pacman, brew
-```
-
-### File Operations
-```
-Read, write, delete, and manage files
-Includes: permissions, ownership, directory listing
-```
-
-### Git Operations
-```
-Clone, pull, checkout, commit repositories
-Full git workflow support
-```
-
-### Service Management
-```
-Control systemd services
-Operations: start, stop, restart, enable, disable
-```
-
-### Nginx Configuration
-```
-Create and manage nginx sites
-Supports: reverse proxy, SSL, custom configs
-```
-
-### System Monitoring
-```
-Get system information
-Includes: CPU, memory, disk, network stats
-```
-
-## 📊 Monitoring & Metrics
-
-### Prometheus Metrics
-Available at `/actuator/prometheus`
-
-### Grafana Dashboard
-Access at `http://localhost:3000` (when using docker-compose)
+## 📊 Monitoring & Observability
 
 ### Health Checks
-- Liveness: `/actuator/health/liveness`
-- Readiness: `/actuator/health/readiness`
+```bash
+# Application health
+curl http://localhost:8080/actuator/health
 
-## 🔒 Security Best Practices
+# Detailed health with components
+curl http://localhost:8080/actuator/health?show-details=always
+```
 
-1. **Use SSH Keys**: Always prefer key-based authentication
-2. **Enable Rate Limiting**: Configure appropriate rate limits
-3. **Audit Logging**: Review audit logs regularly
-4. **Command Validation**: Keep strict mode enabled in production
-5. **Path Restrictions**: Configure allowed/blocked paths appropriately
-6. **Network Security**: Use VPN or private networks
-7. **Credential Management**: Use secrets management tools
+### Metrics
+```bash
+# Prometheus format metrics
+curl http://localhost:8080/actuator/prometheus
+
+# JSON format metrics
+curl http://localhost:8080/actuator/metrics
+```
+
+### Built-in Dashboards
+When using `docker-compose up`:
+- **Prometheus** (`:9090`) - Metrics collection
+- **Grafana** (`:3000`) - Visualization (admin/admin)
+- **MCP Conductor** (`:8080`) - Main application
+
+## 🔒 Security Model
+
+### Defense in Depth
+1. **Authentication**: Basic Auth + SSH key validation
+2. **Command Validation**: Whitelist-based command checking
+3. **Input Sanitization**: Injection attack prevention
+4. **Path Validation**: Directory traversal protection
+5. **Rate Limiting**: Request throttling per client
+6. **Audit Logging**: Complete operation trail
+
+### Security Configuration
+```env
+# Strict mode (production)
+SECURITY_COMMAND_STRICT_MODE=true
+
+# Allowed commands (whitelist)
+SECURITY_COMMAND_ALLOWED=ls,ps,df,docker,git,systemctl
+
+# Blocked paths
+SECURITY_PATH_BLOCKED=/etc/passwd,/etc/shadow,/root
+
+# Rate limiting
+RATE_LIMIT_CAPACITY=100
+RATE_LIMIT_REFILL_TOKENS=10
+```
+
+## 🐳 Docker Deployment
+
+### Using Docker Compose (Recommended)
+```bash
+# Start full stack (includes Grafana + Prometheus)
+docker-compose up -d
+
+# View logs
+docker-compose logs -f mcp-conductor
+
+# Stop services
+docker-compose down
+```
+
+### Standalone Docker
+```bash
+# Build image
+docker build -t mcp-conductor .
+
+# Run container
+docker run -d \
+  -p 8080:8080 \
+  -v ~/.ssh:/app/.ssh:ro \
+  -e SSH_DEFAULT_HOST=your-server \
+  -e SSH_DEFAULT_USERNAME=your-user \
+  --name mcp-conductor \
+  mcp-conductor
+```
 
 ## 🧪 Testing
 
-### Run Unit Tests
+### Run Tests
 ```bash
+# Unit tests
 mvn test
+
+# Integration tests with coverage
+mvn verify jacoco:report
+
+# Specific test classes
+mvn test -Dtest=CommandValidatorTest,SecurityTest
 ```
 
-### Run Integration Tests
+### Manual Testing
 ```bash
-mvn verify
+# Test HTTP mode
+curl http://localhost:8080/actuator/health
+curl -u admin:password http://localhost:8080/actuator/info
+
+# Test STDIO mode with Claude Code
+claude mcp list
+# Should show: mcp-conductor: ✓ Connected
 ```
 
-### Test with Claude Desktop
-1. Start the server
-2. Open Claude Desktop
-3. Try: "List all Docker containers on my server"
+## 🚀 Production Deployment
 
-## 📦 Deployment
+### Environment Profiles
+- **dev**: Development with debug logging
+- **prod**: Production optimized with strict security
+- **test**: Testing with mocked dependencies
 
-### Docker Deployment
+### Production Checklist
+- [ ] Use strong authentication credentials
+- [ ] Enable strict command validation
+- [ ] Configure rate limiting appropriately
+- [ ] Set up monitoring and alerting
+- [ ] Enable audit logging
+- [ ] Use HTTPS with proper certificates
+- [ ] Configure firewall rules
+- [ ] Set up log rotation
+- [ ] Monitor disk space and performance
+
+### High Availability Setup
 ```bash
-docker build -t mcp-devops-commander .
-docker run -p 8080:8080 mcp-devops-commander
+# Load balancer configuration
+# Multiple MCP Conductor instances
+# Shared configuration storage
+# Centralized logging
 ```
 
-### Kubernetes Deployment
+## 🤖 Claude Code Integration
+
+### Quick Setup
 ```bash
-kubectl create namespace mcp-system
-kubectl apply -f k8s/
+# Register with Claude Code
+claude mcp add-json mcp-conductor --scope user '{
+  "command": "/path/to/mcp-conductor/scripts/run-stdio-mode.sh",
+  "args": [],
+  "env": {},
+  "description": "AI-powered DevOps automation server"
+}'
+
+# Verify connection
+claude mcp list
+# Should show: mcp-conductor: ✓ Connected
 ```
 
-### Production Considerations
-- Use external configuration management
-- Enable TLS/SSL
-- Configure proper resource limits
-- Set up monitoring and alerting
-- Implement backup strategies
+### Available Tools in Claude
+When connected to Claude Code, you can use natural language to:
+- **execute_command** - Run SSH commands on remote servers
+- **get_system_info** - Get comprehensive system information
+- **docker_list_containers** - List and manage Docker containers
+- **file_read** - Read file contents with security validation
+- **check_server_health** - Monitor server health and metrics
 
-## 🤝 Usage Examples
+### Example Usage
+In Claude Code, try asking:
+- "What's the current health status of the server?"
+- "List all running Docker containers"
+- "Execute 'df -h' to check disk space"
+- "Get system information from the MCP server"
 
-### With Claude Desktop
+## 📁 Project Structure
 
-**Example 1: Deploy Application**
 ```
-"Deploy my Node.js app from GitHub to production server"
+mcp-conductor/
+├── bin/                    # Executable scripts
+│   └── mcp-server.py      # MCP STDIO server
+├── config/                 # Configuration files
+│   ├── example.env        # Environment template
+│   ├── http.env          # HTTP mode config
+│   └── stdio.env         # STDIO mode config
+├── scripts/               # Cross-platform startup scripts
+│   ├── run-http-mode.sh   # Linux/macOS HTTP launcher
+│   ├── run-http-mode.bat  # Windows HTTP launcher
+│   ├── run-stdio-mode.sh  # Linux/macOS STDIO launcher
+│   └── run-stdio-mode.bat # Windows STDIO launcher
+├── src/                   # Java source code
+├── target/                # Compiled artifacts
+├── docs/                  # Documentation
+├── docker-compose.yml     # Multi-service deployment
+├── Dockerfile            # Container definition
+└── README.md             # This file
 ```
 
-**Example 2: Docker Setup**
-```
-"Set up PostgreSQL and Redis containers with persistent storage"
-```
+## 📚 Documentation
 
-**Example 3: System Maintenance**
-```
-"Check system resources and update all packages on staging server"
-```
+- **[DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)** - Complete deployment instructions
+- **[CLAUDE.md](CLAUDE.md)** - Developer guide for Claude Code integration
+- **[WORKING_SOLUTION.md](WORKING_SOLUTION.md)** - Implementation details and architecture
 
-**Example 4: Nginx Configuration**
-```
-"Configure nginx reverse proxy for my app running on port 3000"
-```
+## 🤝 Contributing
 
-## 📚 API Documentation
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md).
 
-When running, API documentation is available at:
-- Swagger UI: `http://localhost:8080/swagger-ui.html`
-- OpenAPI Spec: `http://localhost:8080/v3/api-docs`
+### Development Setup
+```bash
+# Fork and clone
+git clone https://github.com/YOUR_USERNAME/mcp-conductor.git
+
+# Create feature branch
+git checkout -b feature/amazing-feature
+
+# Make changes and test
+mvn clean test
+
+# Commit with conventional commits
+git commit -m "feat: add amazing feature"
+```
 
 ## 🐛 Troubleshooting
 
-### Connection Issues
-- Verify SSH credentials and connectivity
-- Check firewall rules
-- Ensure proper network configuration
+### Common Issues
 
-### Permission Denied
-- Verify user has sudo privileges
-- Check file/directory permissions
-- Review security configuration
+| Issue | Solution |
+|-------|----------|
+| Port 8080 in use | Change `SERVER_PORT` in `config/http.env` |
+| SSH connection failed | Verify SSH key path and server access |
+| Commands blocked | Check `SECURITY_COMMAND_ALLOWED` in config |
+| Docker not available | Install Docker and check permissions |
+| Claude Code connection failed | Check `scripts/run-stdio-mode.sh` permissions |
+| Python not found | Install Python 3.8+ for STDIO mode |
 
-### Rate Limiting
-- Adjust rate limit configuration
-- Implement request batching
-- Use connection pooling
+### Debug Mode
+```bash
+# Enable debug logging
+export LOG_LEVEL=DEBUG
+./scripts/run-http-mode.sh
+```
 
 ## 📝 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🤝 Contributing
+## 🙏 Acknowledgments
 
-Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details.
-
-## 🔗 Links
-
-- [Spring AI Documentation](https://docs.spring.io/spring-ai/reference/)
-- [MCP Specification](https://modelcontextprotocol.io)
-- [Spring Boot](https://spring.io/projects/spring-boot)
-- [Docker Documentation](https://docs.docker.com)
-
-## 👥 Support
-
-For issues and questions:
-- Create an issue on GitHub
-- Check existing documentation
-- Review closed issues for solutions
-
-## 🏆 Acknowledgments
-
-- Spring AI team for MCP support
-- Anthropic for the MCP specification
-- Spring Boot community
+- **[Anthropic](https://anthropic.com)** - For the Model Context Protocol and Claude
+- **[Spring AI Team](https://spring.io/projects/spring-ai)** - For MCP server implementation
+- **[Spring Boot Community](https://spring.io/projects/spring-boot)** - For the excellent framework
+- **DevOps Community** - For feedback and contributions
 
 ---
 
-Built with ❤️ for the DevOps community
+<div align="center">
+
+### 🎉 **Ready to Transform Your DevOps with AI?**
+
+**[⭐ Star this Repository](https://github.com/alishahidi/mcp-conductor/stargazers)** • **[🚀 Get Started](#-quick-start)** • **[🤝 Contribute](#-contributing)**
+
+**Built with ❤️ for the AI-powered infrastructure future**
+
+</div>
