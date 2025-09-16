@@ -1,0 +1,30 @@
+spring:
+  config:
+    activate:
+      on-profile: stdio
+  main:
+    web-application-type: none  # Critical: Disable web server
+    banner-mode: off            # Critical: No banner output
+  ai:
+    mcp:
+      server:
+        stdio: true              # Enable STDIO transport
+        name: mcp-conductor
+        version: 1.0.0
+        type: SYNC
+
+# Disable ALL console logging for STDIO mode
+logging:
+  pattern:
+    console: ""  # Empty pattern = no console output
+  level:
+    root: OFF    # Turn off all logging
+  file:
+    name: logs/mcp-conductor.log  # Log to file instead
+
+# SSH Configuration
+ssh:
+  default-host: ${SSH_DEFAULT_HOST:localhost}
+  default-port: ${SSH_DEFAULT_PORT:22}
+  default-username: ${SSH_DEFAULT_USERNAME:user}
+  private-key-path: ${SSH_PRIVATE_KEY_PATH:~/.ssh/id_rsa}

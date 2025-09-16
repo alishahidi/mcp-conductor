@@ -1,40 +1,27 @@
 #!/bin/bash
-# MCP Conductor - STDIO Mode Launcher
-# Production MCP STDIO server for Claude Code integration
+# start-mcp-stdio.sh - Working MCP STDIO launcher for Claude Code
 
 set -e
 
-# Configuration
-PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$PROJECT_DIR"
 
-echo "🔌 Starting MCP Conductor - STDIO Mode"
-echo "Project Directory: $PROJECT_DIR"
+echo "🔌 Starting MCP Conductor - STDIO Mode" >&2
 
-# Load environment
-if [ -f "config/stdio.env" ]; then
-    echo "Loading STDIO configuration..."
-    export $(grep -v '^#' config/stdio.env | grep -v '^$' | xargs)
-else
-    echo "⚠️ Warning: config/stdio.env not found, using defaults"
-fi
-
-# Check Python
+# Check if Python 3 is available
 if ! command -v python3 &> /dev/null; then
-    echo "❌ Error: Python 3 not found"
-    echo "Please install Python 3.8+ and ensure it's in PATH"
+    echo "❌ Error: Python 3 not found" >&2
     exit 1
 fi
 
-# Check if mcp-server.py exists
-if [ ! -f "bin/mcp-server.py" ]; then
-    echo "❌ Error: bin/mcp-server.py not found"
-    echo "Please ensure the MCP server file exists"
-    exit 1
+# Check if JAR exists, if not build it
+if [ ! -f "target/mcp-conductor.jar" ]; then
+    echo "📦 Building project..." >&2
+    mvn clean package -DskipTests -q
 fi
 
-# Make sure the script is executable
+# Make Python script executable
 chmod +x bin/mcp-server.py
 
-echo "Starting MCP STDIO server..."
+# Run the MCP STDIO bridge
 exec python3 bin/mcp-server.py

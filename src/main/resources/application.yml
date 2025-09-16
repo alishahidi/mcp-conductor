@@ -3,30 +3,3 @@ spring:
     name: mcp-conductor
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:dev}
-  main:
-    web-application-type: ${SPRING_MAIN_WEB_APPLICATION_TYPE:servlet}
-    banner-mode: ${SPRING_MAIN_BANNER_MODE:console}
-  
-  ai:
-    mcp:
-      server:
-        name: ${SPRING_AI_MCP_SERVER_NAME:mcp-conductor}
-        version: ${SPRING_AI_MCP_SERVER_VERSION:1.0.0}
-        type: ${SPRING_AI_MCP_SERVER_TYPE:SYNC}
-
-server:
-  port: ${SERVER_PORT:8080}
-
-logging:
-  level:
-    net.alishahidi.mcpconductor: ${LOG_LEVEL:INFO}
-    org.springframework.ai.mcp: ${MCP_LOG_LEVEL:DEBUG}
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info,prometheus,metrics
-  endpoint:
-    health:
-      show-details: always
