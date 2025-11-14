@@ -3,3 +3,14 @@ spring:
     name: mcp-conductor
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:dev}
+  main:
+    web-application-type: none
+  ai:
+    mcp:
+      server:
+        stdio: true
+        name: mcp-conductor
+        version: 1.0.0
+        type: SYNC
+        annotation-scanner:
+          enabled: true

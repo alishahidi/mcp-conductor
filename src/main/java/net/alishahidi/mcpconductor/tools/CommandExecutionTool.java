@@ -7,8 +7,8 @@ import net.alishahidi.mcpconductor.security.RateLimiter;
 import net.alishahidi.mcpconductor.exception.*;
 import net.alishahidi.mcpconductor.model.CommandResult;
 import net.alishahidi.mcpconductor.util.ResponseFormatter;
-import org.springframework.ai.tool.annotation.Tool;
-import org.springframework.ai.tool.annotation.ToolParam;
+import org.springframework.ai.mcp.server.annotation.McpTool;
+import org.springframework.ai.mcp.server.annotation.McpToolParam;
 import org.springframework.stereotype.Component;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -37,12 +37,12 @@ public class CommandExecutionTool {
 
     private static final long COMMAND_TIMEOUT_SECONDS = 300; // 5 minutes
 
-    @Tool(name = "execute_command",
+    @McpTool(name = "execute_command",
             description = "Execute a single command on a remote server via SSH with comprehensive error handling and security validation")
     public String executeCommand(
-            @ToolParam(description = "The Linux/Unix command to execute") String command,
-            @ToolParam(description = "The target server identifier") String serverName,
-            @ToolParam(description = "Whether to execute with sudo privileges") boolean useSudo) {
+            @McpToolParam(description = "The Linux/Unix command to execute") String command,
+            @McpToolParam(description = "The target server identifier") String serverName,
+            @McpToolParam(description = "Whether to execute with sudo privileges") boolean useSudo) {
 
         log.info("Executing command: {} on server: {} (sudo: {})", command, serverName, useSudo);
 
@@ -125,13 +125,13 @@ public class CommandExecutionTool {
         }
     }
 
-    @Tool(name = "execute_script",
+    @McpTool(name = "execute_script",
             description = "Execute a multi-line script with transaction support and rollback capability")
     public String executeScript(
-            @ToolParam(description = "Multi-line bash/shell script content") String script,
-            @ToolParam(description = "The target server identifier") String serverName,
-            @ToolParam(description = "Whether to execute with sudo privileges") boolean useSudo,
-            @ToolParam(description = "Stop on first error (true) or continue (false)") boolean stopOnError) {
+            @McpToolParam(description = "Multi-line bash/shell script content") String script,
+            @McpToolParam(description = "The target server identifier") String serverName,
+            @McpToolParam(description = "Whether to execute with sudo privileges") boolean useSudo,
+            @McpToolParam(description = "Stop on first error (true) or continue (false)") boolean stopOnError) {
 
         log.info("Executing script on server: {} (lines: {})",
                 serverName, script.split("\n").length);
@@ -232,12 +232,12 @@ public class CommandExecutionTool {
         }
     }
 
-    @Tool(name = "execute_parallel_commands",
+    @McpTool(name = "execute_parallel_commands",
             description = "Execute multiple commands in parallel across different servers")
     public String executeParallelCommands(
-            @ToolParam(description = "List of commands to execute") List<String> commands,
-            @ToolParam(description = "List of target servers") List<String> servers,
-            @ToolParam(description = "Maximum parallel executions") int maxParallel) {
+            @McpToolParam(description = "List of commands to execute") List<String> commands,
+            @McpToolParam(description = "List of target servers") List<String> servers,
+            @McpToolParam(description = "Maximum parallel executions") int maxParallel) {
 
         log.info("Executing {} commands on {} servers in parallel",
                 commands.size(), servers.size());

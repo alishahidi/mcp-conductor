@@ -5,8 +5,8 @@ import net.alishahidi.mcpconductor.service.SystemService;
 import net.alishahidi.mcpconductor.model.CommandResult;
 import net.alishahidi.mcpconductor.model.SystemInfo;
 import net.alishahidi.mcpconductor.util.ResponseFormatter;
-import org.springframework.ai.tool.annotation.Tool;
-import org.springframework.ai.tool.annotation.ToolParam;
+import org.springframework.ai.mcp.server.annotation.McpTool;
+import org.springframework.ai.mcp.server.annotation.McpToolParam;
 import org.springframework.stereotype.Component;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,9 +25,9 @@ public class SystemMonitoringTool {
     private final SystemService systemService;
     private final ResponseFormatter responseFormatter;
 
-    @Tool(name = "get_system_info", description = "Get comprehensive system information including CPU, memory, disk usage, and system details from a remote server. Perfect for monitoring system health and resources.")
+    @McpTool(name = "get_system_info", description = "Get comprehensive system information including CPU, memory, disk usage, and system details from a remote server. Perfect for monitoring system health and resources.")
     public String getSystemInfo(
-            @ToolParam(description = "The target server name to get system information from (e.g., 'production', 'staging', 'localhost')") String serverName) {
+            @McpToolParam(description = "The target server name to get system information from (e.g., 'production', 'staging', 'localhost')") String serverName) {
         log.info("Getting system information for server: {}", serverName);
         
         try {
@@ -39,10 +39,10 @@ public class SystemMonitoringTool {
         }
     }
 
-    @Tool(name = "get_process_list", description = "Get list of running processes on a remote server. Useful for monitoring what's running and identifying resource-intensive processes.")
+    @McpTool(name = "get_process_list", description = "Get list of running processes on a remote server. Useful for monitoring what's running and identifying resource-intensive processes.")
     public String getProcessList(
-            @ToolParam(description = "The target server name to get process list from") String serverName,
-            @ToolParam(description = "Maximum number of processes to return (default: 20)") int limit) {
+            @McpToolParam(description = "The target server name to get process list from") String serverName,
+            @McpToolParam(description = "Maximum number of processes to return (default: 20)") int limit) {
         log.info("Getting process list for server: {} (limit: {})", serverName, limit);
         
         try {
@@ -64,10 +64,10 @@ public class SystemMonitoringTool {
         }
     }
 
-    @Tool(name = "get_service_status", description = "Check the status of a specific system service (systemd) on a remote server. Useful for monitoring critical services.")
+    @McpTool(name = "get_service_status", description = "Check the status of a specific system service (systemd) on a remote server. Useful for monitoring critical services.")
     public String getServiceStatus(
-            @ToolParam(description = "The target server name to check service on") String serverName,
-            @ToolParam(description = "The name of the service to check (e.g., 'nginx', 'apache2', 'mysql', 'docker')") String serviceName) {
+            @McpToolParam(description = "The target server name to check service on") String serverName,
+            @McpToolParam(description = "The name of the service to check (e.g., 'nginx', 'apache2', 'mysql', 'docker')") String serviceName) {
         log.info("Checking service status for {} on server: {}", serviceName, serverName);
         
         try {
@@ -84,9 +84,9 @@ public class SystemMonitoringTool {
         }
     }
 
-    @Tool(name = "get_disk_usage", description = "Get disk space usage information for all mounted filesystems on a remote server. Essential for monitoring storage capacity.")
+    @McpTool(name = "get_disk_usage", description = "Get disk space usage information for all mounted filesystems on a remote server. Essential for monitoring storage capacity.")
     public String getDiskUsage(
-            @ToolParam(description = "The target server name to check disk usage on") String serverName) {
+            @McpToolParam(description = "The target server name to check disk usage on") String serverName) {
         log.info("Getting disk usage for server: {}", serverName);
         
         try {
@@ -104,9 +104,9 @@ public class SystemMonitoringTool {
         }
     }
 
-    @Tool(name = "get_memory_usage", description = "Get detailed memory usage information including RAM and swap usage on a remote server.")
+    @McpTool(name = "get_memory_usage", description = "Get detailed memory usage information including RAM and swap usage on a remote server.")
     public String getMemoryUsage(
-            @ToolParam(description = "The target server name to check memory usage on") String serverName) {
+            @McpToolParam(description = "The target server name to check memory usage on") String serverName) {
         log.info("Getting memory usage for server: {}", serverName);
         
         try {
@@ -124,9 +124,9 @@ public class SystemMonitoringTool {
         }
     }
 
-    @Tool(name = "get_network_info", description = "Get network interface information and statistics from a remote server. Useful for monitoring network connectivity and usage.")
+    @McpTool(name = "get_network_info", description = "Get network interface information and statistics from a remote server. Useful for monitoring network connectivity and usage.")
     public String getNetworkInfo(
-            @ToolParam(description = "The target server name to get network information from") String serverName) {
+            @McpToolParam(description = "The target server name to get network information from") String serverName) {
         log.info("Getting network info for server: {}", serverName);
         
         try {
@@ -144,9 +144,9 @@ public class SystemMonitoringTool {
         }
     }
 
-    @Tool(name = "get_load_average", description = "Get system load average (1min, 5min, 15min) from a remote server. Critical for understanding system performance under load.")
+    @McpTool(name = "get_load_average", description = "Get system load average (1min, 5min, 15min) from a remote server. Critical for understanding system performance under load.")
     public String getLoadAverage(
-            @ToolParam(description = "The target server name to get load average from") String serverName) {
+            @McpToolParam(description = "The target server name to get load average from") String serverName) {
         log.info("Getting load average for server: {}", serverName);
         
         try {
@@ -164,11 +164,11 @@ public class SystemMonitoringTool {
         }
     }
 
-    @Tool(name = "get_top_processes", description = "Get top CPU and memory consuming processes from a remote server. Perfect for identifying resource bottlenecks.")
+    @McpTool(name = "get_top_processes", description = "Get top CPU and memory consuming processes from a remote server. Perfect for identifying resource bottlenecks.")
     public String getTopProcesses(
-            @ToolParam(description = "The target server name to get top processes from") String serverName,
-            @ToolParam(description = "Sort by 'cpu' or 'memory' (default: cpu)") String sortBy,
-            @ToolParam(description = "Number of top processes to return (default: 10)") int count) {
+            @McpToolParam(description = "The target server name to get top processes from") String serverName,
+            @McpToolParam(description = "Sort by 'cpu' or 'memory' (default: cpu)") String sortBy,
+            @McpToolParam(description = "Number of top processes to return (default: 10)") int count) {
         log.info("Getting top processes for server: {} (sorted by: {}, count: {})", serverName, sortBy, count);
         
         try {
