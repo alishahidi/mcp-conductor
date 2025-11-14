@@ -4,8 +4,8 @@
 
 ![MCP Conductor](https://img.shields.io/badge/MCP-Conductor-blue?style=for-the-badge&logo=spring&logoColor=white)
 
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.5-brightgreen.svg?style=flat-square)](https://spring.io/projects/spring-boot)
-[![Spring AI](https://img.shields.io/badge/Spring%20AI-1.0.0-blue.svg?style=flat-square)](https://spring.io/projects/spring-ai)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4.1-brightgreen.svg?style=flat-square)](https://spring.io/projects/spring-boot)
+[![Spring AI](https://img.shields.io/badge/Spring%20AI-1.1.0--RC1-blue.svg?style=flat-square)](https://spring.io/projects/spring-ai)
 [![Java](https://img.shields.io/badge/Java-21-orange.svg?style=flat-square)](https://www.oracle.com/java/)
 [![MCP](https://img.shields.io/badge/MCP-Compatible-purple.svg?style=flat-square)](https://modelcontextprotocol.io)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
@@ -62,13 +62,37 @@ Instead of writing complex scripts or memorizing commands, simply tell Claude:
 
 ## 🚀 Quick Start
 
-### Prerequisites
-- **Java 21+** (required for Spring Boot 3.5.5)
+### Automated Setup (Recommended)
+
+```bash
+# Clone the repository
+git clone https://github.com/alishahidi/mcp-conductor.git
+cd mcp-conductor
+
+# Run the interactive setup script
+./setup.sh
+
+# Follow the prompts to configure SSH and generate Claude Desktop config
+```
+
+The setup script will:
+- ✅ Check Java and Maven installation
+- ✅ Build the MCP server
+- ✅ Configure SSH connection
+- ✅ Generate Claude Desktop configuration
+- ✅ Test the server
+
+**📖 For detailed instructions, see [USAGE_GUIDE.md](USAGE_GUIDE.md)**
+
+### Manual Setup
+
+#### Prerequisites
+- **Java 21+** (required for Spring Boot 3.4.1)
 - **Maven 3.8+** for building
 - **SSH access** to target servers
 - **Docker** (optional, for container management)
 
-### 1. Clone and Build
+#### 1. Clone and Build
 ```bash
 git clone https://github.com/alishahidi/mcp-conductor.git
 cd mcp-conductor
@@ -80,53 +104,64 @@ export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
 mvn clean package -DskipTests
 ```
 
-### 2. Configure Environment
+#### 2. Configure for Claude Desktop
+
+Copy the example config and update with your paths:
+
 ```bash
-# Copy environment template
-cp config/example.env config/http.env
+# Copy the example configuration
+cp claude_desktop_config.example.json ~/your-config.json
 
-# Edit configuration
-nano config/http.env
+# Edit with your actual paths and SSH credentials
+nano ~/your-config.json
 ```
 
-**Essential Settings:**
-```env
-# SSH Configuration
-SSH_DEFAULT_HOST=your-server.com
-SSH_DEFAULT_USERNAME=your-username
-SSH_PRIVATE_KEY_PATH=/path/to/your/ssh/key
-
-# Security
-SECURITY_USER=admin
-SECURITY_PASSWORD=your-secure-password
-
-# Optional: Docker support
-DOCKER_HOST=unix:///var/run/docker.sock
+Example configuration:
+```json
+{
+  "mcpServers": {
+    "mcp-conductor": {
+      "command": "java",
+      "args": ["-jar", "/absolute/path/to/mcp-conductor/target/mcp-conductor.jar"],
+      "env": {
+        "JAVA_HOME": "/usr/lib/jvm/java-21-openjdk-amd64",
+        "SSH_DEFAULT_HOST": "your-server.com",
+        "SSH_DEFAULT_USERNAME": "your-username",
+        "SSH_PRIVATE_KEY_PATH": "/home/user/.ssh/id_rsa"
+      }
+    }
+  }
+}
 ```
 
-### 3. Start MCP Conductor
+#### 3. Add to Claude Desktop
 
-**HTTP Mode (Production API)**
+**On macOS:**
 ```bash
-# Linux/macOS
-./scripts/run-http-mode.sh
-
-# Windows
-.\scripts\run-http-mode.bat
-
-# Verify it's running
-curl http://localhost:8080/actuator/health
-# Expected: {"status":"UP"}
+cp ~/your-config.json ~/Library/Application\ Support/Claude/claude_desktop_config.json
 ```
 
-**STDIO Mode (Claude Code Integration)**
+**On Linux:**
 ```bash
-# Linux/macOS
-./scripts/run-stdio-mode.sh
-
-# Windows
-.\scripts\run-stdio-mode.bat
+mkdir -p ~/.config/Claude
+cp ~/your-config.json ~/.config/Claude/claude_desktop_config.json
 ```
+
+**On Windows:**
+```powershell
+copy your-config.json %APPDATA%\Claude\claude_desktop_config.json
+```
+
+#### 4. Restart Claude Desktop
+
+Close and reopen Claude Desktop. You should see the 🔌 icon indicating MCP tools are available.
+
+#### 5. Test with Claude
+
+In Claude Desktop, try asking:
+- "List all Docker containers on the server"
+- "Check disk space on the server"
+- "Show me system stats"
 
 ### 4. Test Basic Operations
 ```bash
@@ -371,8 +406,14 @@ mcp-conductor/
 
 ## 📚 Documentation
 
+### User Guides
+- **[USAGE_GUIDE.md](USAGE_GUIDE.md)** - 📖 **Complete usage guide** with examples and troubleshooting
+- **[MCP_SERVER_FIXES.md](MCP_SERVER_FIXES.md)** - Technical details about recent MCP server fixes
+- **[.env.example](.env.example)** - Environment variable reference
+
+### Developer Guides
+- **[CLAUDE.md](CLAUDE.md)** - Developer guide for working with this repository
 - **[DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)** - Complete deployment instructions
-- **[CLAUDE.md](CLAUDE.md)** - Developer guide for Claude Code integration
 - **[WORKING_SOLUTION.md](WORKING_SOLUTION.md)** - Implementation details and architecture
 
 ## 🤝 Contributing

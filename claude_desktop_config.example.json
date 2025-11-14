@@ -1,0 +1,20 @@
+{
+  "mcpServers": {
+    "mcp-conductor": {
+      "command": "java",
+      "args": [
+        "-jar",
+        "/absolute/path/to/mcp-conductor/target/mcp-conductor.jar"
+      ],
+      "env": {
+        "JAVA_HOME": "/usr/lib/jvm/java-21-openjdk-amd64",
+        "SSH_DEFAULT_HOST": "your-server.com",
+        "SSH_DEFAULT_USERNAME": "your-username",
+        "SSH_DEFAULT_PORT": "22",
+        "SSH_PRIVATE_KEY_PATH": "/home/user/.ssh/id_rsa",
+        "LOG_LEVEL": "INFO",
+        "MCP_LOG_LEVEL": "DEBUG"
+      }
+    }
+  }
+}
