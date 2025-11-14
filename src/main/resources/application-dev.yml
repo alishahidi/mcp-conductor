@@ -1,0 +1,119 @@
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+# Security Configuration
+security:
+  enabled: false  # Disable security for development
+  command:
+    strict-mode: false  # Allow all commands in dev mode
+    allowed:
+      - ls
+      - cat
+      - echo
+      - pwd
+      - whoami
+      - uname
+      - date
+      - ps
+      - top
+      - df
+      - du
+      - free
+      - uptime
+      - netstat
+      - systemctl
+      - service
+      - docker
+      - git
+      - npm
+      - yarn
+      - node
+      - java
+      - mvn
+      - gradle
+      - apt
+      - yum
+      - dnf
+      - nginx
+      - pm2
+      - tail
+      - head
+      - grep
+      - find
+      - chmod
+      - chown
+      - mkdir
+      - rm
+      - cp
+      - mv
+      - tar
+      - zip
+      - unzip
+      - curl
+      - wget
+
+  path:
+    allowed:
+      - /home
+      - /var
+      - /opt
+      - /tmp
+      - /usr/local
+      - /etc/nginx
+      - /etc/systemd
+
+    blocked:
+      - /etc/passwd
+      - /etc/shadow
+      - /root/.ssh
+
+# Rate Limiting (relaxed for dev)
+rate-limit:
+  capacity: 1000
+  refill-tokens: 100
+  refill-duration-minutes: 1
+
+# SSH Configuration (dev environment)
+ssh:
+  default:
+    host: ${SSH_DEFAULT_HOST:localhost}
+    username: ${SSH_DEFAULT_USERNAME:}
+    port: ${SSH_DEFAULT_PORT:22}
+    password: ${SSH_DEFAULT_PASSWORD:}
+    private-key-path: ${SSH_PRIVATE_KEY_PATH:}
+    passphrase: ${SSH_PASSPHRASE:}
+
+  connection-pool:
+    max-size: 10
+    min-idle: 2
+    max-wait-millis: 30000
+
+# Docker Configuration
+docker:
+  host: ${DOCKER_HOST:unix:///var/run/docker.sock}
+  tls-verify: false
+  api-version: ${DOCKER_API_VERSION:1.41}
+
+# Logging
+logging:
+  level:
+    root: INFO
+    net.alishahidi.mcpconductor: DEBUG
+    org.springframework.ai.mcp: DEBUG
+    org.springframework.security: DEBUG
+
+# Management & Monitoring
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    export:
+      prometheus:
+        enabled: true

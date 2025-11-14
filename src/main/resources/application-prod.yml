@@ -1,0 +1,141 @@
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+# Security Configuration - STRICT MODE for Production
+security:
+  enabled: true  # Enable security for production
+  command:
+    strict-mode: true  # Strict validation in production
+    allowed:
+      # System commands
+      - ls
+      - cat
+      - pwd
+      - whoami
+      - uname
+      - date
+      # Monitoring commands
+      - ps
+      - top
+      - df
+      - du
+      - free
+      - uptime
+      - netstat
+      # Service management
+      - systemctl
+      - service
+      # Docker commands
+      - docker
+      # Git commands
+      - git
+      # Node.js/NPM
+      - npm
+      - yarn
+      - node
+      - pm2
+      # Package management
+      - apt-get
+      - apt
+      - yum
+      - dnf
+      # Nginx
+      - nginx
+      # File operations
+      - tail
+      - head
+      - grep
+      - find
+      - mkdir
+      - cp
+      - mv
+      # Compression
+      - tar
+      - zip
+      - unzip
+      - gzip
+      # Network
+      - curl
+      - wget
+
+  path:
+    allowed:
+      - /home
+      - /var/www
+      - /var/log
+      - /opt
+      - /tmp
+      - /usr/local
+      - /etc/nginx/sites-available
+      - /etc/nginx/sites-enabled
+
+    blocked:
+      - /etc/passwd
+      - /etc/shadow
+      - /etc/sudoers
+      - /etc/ssh
+      - /root
+      - /boot
+      - /sys
+      - /proc/kcore
+
+# Rate Limiting (strict for production)
+rate-limit:
+  capacity: 100
+  refill-tokens: 10
+  refill-duration-minutes: 1
+
+# SSH Configuration (production environment)
+ssh:
+  default:
+    host: ${SSH_DEFAULT_HOST:}
+    username: ${SSH_DEFAULT_USERNAME:}
+    port: ${SSH_DEFAULT_PORT:22}
+    password: ${SSH_DEFAULT_PASSWORD:}
+    private-key-path: ${SSH_PRIVATE_KEY_PATH:}
+    passphrase: ${SSH_PASSPHRASE:}
+
+  connection-pool:
+    max-size: 20
+    min-idle: 5
+    max-wait-millis: 30000
+
+# Docker Configuration
+docker:
+  host: ${DOCKER_HOST:unix:///var/run/docker.sock}
+  tls-verify: ${DOCKER_TLS_VERIFY:false}
+  api-version: ${DOCKER_API_VERSION:1.41}
+
+# Logging (less verbose in production)
+logging:
+  level:
+    root: WARN
+    net.alishahidi.mcpconductor: INFO
+    org.springframework.ai.mcp: INFO
+    org.springframework.security: WARN
+  file:
+    name: /var/log/mcp-conductor/application.log
+    max-size: 100MB
+    max-history: 30
+
+# Management & Monitoring
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when-authorized
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+# Audit logging
+audit:
+  enabled: true
+  log-path: /var/log/mcp-conductor/audit.log
