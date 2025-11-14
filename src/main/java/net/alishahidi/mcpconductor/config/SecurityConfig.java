@@ -41,14 +41,16 @@ public class SecurityConfig {
     }
 
     @Bean
-    public CommandValidator commandValidator(@Value("${security.command.strict-mode:true}") boolean strictMode,
-                                             @Value("${security.command.allowed}") List<String> allowedCommands) {
+    public CommandValidator commandValidator(
+            @Value("${security.command.strict-mode:true}") boolean strictMode,
+            @Value("${security.command.allowed:ls,cat,echo,pwd,whoami,docker,git,systemctl,service}") List<String> allowedCommands) {
         return new CommandValidator(strictMode, allowedCommands);
     }
 
     @Bean
-    public PathValidator pathValidator(@Value("${security.path.allowed}") List<String> allowedPaths,
-                                       @Value("${security.path.blocked}") List<String> blockedPaths) {
+    public PathValidator pathValidator(
+            @Value("${security.path.allowed:/home,/var,/opt,/tmp,/usr/local}") List<String> allowedPaths,
+            @Value("${security.path.blocked:/etc/passwd,/etc/shadow,/root/.ssh}") List<String> blockedPaths) {
         return new PathValidator(allowedPaths, blockedPaths);
     }
 
