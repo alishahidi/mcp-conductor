@@ -1,16 +1,21 @@
 package net.alishahidi.mcpconductor.config;
 
-import net.alishahidi.mcpconductor.tools.*;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
+import jakarta.annotation.PostConstruct;
 
-import java.util.List;
-
+/**
+ * MCP Server Configuration
+ *
+ * Spring AI MCP Server is auto-configured through spring-ai-starter-mcp-server.
+ * This class provides logging and initialization for the MCP server.
+ *
+ * Key configuration properties (application.yml):
+ * - spring.ai.mcp.server.stdio: true (for STDIO mode)
+ * - spring.ai.mcp.server.type: SYNC (for synchronous operations)
+ * - spring.ai.mcp.server.annotation-scanner.enabled: true (to scan for @McpTool annotations)
+ */
 @Configuration
 @Slf4j
 public class McpServerConfig {
@@ -21,21 +26,18 @@ public class McpServerConfig {
     @Value("${spring.ai.mcp.server.version:1.0.0}")
     private String serverVersion;
 
-    @Bean
-    @ConfigurationProperties(prefix = "spring.ai.mcp.server")
-    @ConditionalOnProperty(name = "spring.main.web-application-type", havingValue = "none")
-    public String mcpServerConfiguration() {
-        log.info("Configuring MCP STDIO Server: {}", serverName);
-        log.info("Server Version: {}", serverVersion);
-        log.info("Running in STDIO mode for Claude Code integration");
-        return "STDIO mode enabled";
-    }
+    @Value("${spring.ai.mcp.server.stdio:false}")
+    private boolean stdioEnabled;
 
-    @Bean
-    public String mcpServerInfo() {
-        log.info("MCP Conductor Server initialized");
-        log.info("Server Name: {}", serverName);
-        log.info("Server Version: {}", serverVersion);
-        return "MCP Conductor Server v" + serverVersion;
+    @PostConstruct
+    public void init() {
+        log.info("╔══════════════════════════════════════════════════════════════╗");
+        log.info("║  MCP Conductor Server Initialized                           ║");
+        log.info("╠══════════════════════════════════════════════════════════════╣");
+        log.info("║  Server Name:    {}                              ║", serverName);
+        log.info("║  Version:        {}                                      ║", serverVersion);
+        log.info("║  Mode:           {}                                     ║", stdioEnabled ? "STDIO" : "HTTP");
+        log.info("║  Type:           SYNC                                        ║");
+        log.info("╚══════════════════════════════════════════════════════════════╝");
     }
 }

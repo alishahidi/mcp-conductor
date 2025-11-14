@@ -3,8 +3,8 @@ package net.alishahidi.mcpconductor.tools;
 import net.alishahidi.mcpconductor.service.NginxService;
 import net.alishahidi.mcpconductor.model.NginxSite;
 import net.alishahidi.mcpconductor.util.ResponseFormatter;
-import org.springframework.ai.tool.annotation.Tool;
-import org.springframework.ai.tool.annotation.ToolParam;
+import org.springframework.ai.mcp.server.annotation.McpTool;
+import org.springframework.ai.mcp.server.annotation.McpToolParam;
 import org.springframework.stereotype.Component;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,14 +19,14 @@ public class NginxConfigurationTool {
     private final NginxService nginxService;
     private final ResponseFormatter responseFormatter;
 
-    @Tool(name = "create_nginx_site", description = "Create a new Nginx site configuration for web hosting or reverse proxy. Perfect for setting up websites, APIs, or load balancing.")
+    @McpTool(name = "create_nginx_site", description = "Create a new Nginx site configuration for web hosting or reverse proxy. Perfect for setting up websites, APIs, or load balancing.")
     public String createNginxSite(
-            @ToolParam(description = "The target server name where Nginx is running") String serverName,
-            @ToolParam(description = "The domain name or site name (e.g., 'example.com', 'api.mysite.com')") String siteName,
-            @ToolParam(description = "Port to listen on (default: 80 for HTTP, 443 for HTTPS)") int port,
-            @ToolParam(description = "Document root path for static files (e.g., '/var/www/html') - optional for reverse proxy") String documentRoot,
-            @ToolParam(description = "Proxy pass URL for reverse proxy (e.g., 'http://localhost:3000') - optional for static sites") String proxyPass,
-            @ToolParam(description = "Whether to enable SSL/HTTPS (true/false)") boolean enableSsl) {
+            @McpToolParam(description = "The target server name where Nginx is running") String serverName,
+            @McpToolParam(description = "The domain name or site name (e.g., 'example.com', 'api.mysite.com')") String siteName,
+            @McpToolParam(description = "Port to listen on (default: 80 for HTTP, 443 for HTTPS)") int port,
+            @McpToolParam(description = "Document root path for static files (e.g., '/var/www/html') - optional for reverse proxy") String documentRoot,
+            @McpToolParam(description = "Proxy pass URL for reverse proxy (e.g., 'http://localhost:3000') - optional for static sites") String proxyPass,
+            @McpToolParam(description = "Whether to enable SSL/HTTPS (true/false)") boolean enableSsl) {
         log.info("Creating Nginx site: {} on server: {}", siteName, serverName);
         
         try {
@@ -52,10 +52,10 @@ public class NginxConfigurationTool {
         }
     }
 
-    @Tool(name = "enable_nginx_site", description = "Enable an existing Nginx site configuration by creating a symbolic link. The site will start serving traffic after reload.")
+    @McpTool(name = "enable_nginx_site", description = "Enable an existing Nginx site configuration by creating a symbolic link. The site will start serving traffic after reload.")
     public String enableNginxSite(
-            @ToolParam(description = "The target server name where Nginx is running") String serverName,
-            @ToolParam(description = "The site name to enable (must exist in sites-available)") String siteName) {
+            @McpToolParam(description = "The target server name where Nginx is running") String serverName,
+            @McpToolParam(description = "The site name to enable (must exist in sites-available)") String siteName) {
         log.info("Enabling Nginx site: {} on server: {}", siteName, serverName);
         
         try {
@@ -67,10 +67,10 @@ public class NginxConfigurationTool {
         }
     }
 
-    @Tool(name = "disable_nginx_site", description = "Disable an Nginx site configuration by removing the symbolic link. The site will stop serving traffic after reload.")
+    @McpTool(name = "disable_nginx_site", description = "Disable an Nginx site configuration by removing the symbolic link. The site will stop serving traffic after reload.")
     public String disableNginxSite(
-            @ToolParam(description = "The target server name where Nginx is running") String serverName,
-            @ToolParam(description = "The site name to disable") String siteName) {
+            @McpToolParam(description = "The target server name where Nginx is running") String serverName,
+            @McpToolParam(description = "The site name to disable") String siteName) {
         log.info("Disabling Nginx site: {} on server: {}", siteName, serverName);
         
         try {
@@ -82,10 +82,10 @@ public class NginxConfigurationTool {
         }
     }
 
-    @Tool(name = "delete_nginx_site", description = "Completely remove an Nginx site configuration. This will disable the site and delete the configuration file.")
+    @McpTool(name = "delete_nginx_site", description = "Completely remove an Nginx site configuration. This will disable the site and delete the configuration file.")
     public String deleteNginxSite(
-            @ToolParam(description = "The target server name where Nginx is running") String serverName,
-            @ToolParam(description = "The site name to delete") String siteName) {
+            @McpToolParam(description = "The target server name where Nginx is running") String serverName,
+            @McpToolParam(description = "The site name to delete") String siteName) {
         log.info("Deleting Nginx site: {} on server: {}", siteName, serverName);
         
         try {
@@ -97,9 +97,9 @@ public class NginxConfigurationTool {
         }
     }
 
-    @Tool(name = "reload_nginx", description = "Reload Nginx configuration to apply changes. This is required after enabling/disabling sites or making configuration changes.")
+    @McpTool(name = "reload_nginx", description = "Reload Nginx configuration to apply changes. This is required after enabling/disabling sites or making configuration changes.")
     public String reloadNginx(
-            @ToolParam(description = "The target server name where Nginx is running") String serverName) {
+            @McpToolParam(description = "The target server name where Nginx is running") String serverName) {
         log.info("Reloading Nginx configuration on server: {}", serverName);
         
         try {
@@ -111,9 +111,9 @@ public class NginxConfigurationTool {
         }
     }
 
-    @Tool(name = "test_nginx_config", description = "Test Nginx configuration syntax for errors before reloading. Always run this before applying changes to production.")
+    @McpTool(name = "test_nginx_config", description = "Test Nginx configuration syntax for errors before reloading. Always run this before applying changes to production.")
     public String testNginxConfig(
-            @ToolParam(description = "The target server name where Nginx is running") String serverName) {
+            @McpToolParam(description = "The target server name where Nginx is running") String serverName) {
         log.info("Testing Nginx configuration on server: {}", serverName);
         
         try {
@@ -129,9 +129,9 @@ public class NginxConfigurationTool {
         }
     }
 
-    @Tool(name = "list_nginx_sites", description = "List all available and enabled Nginx sites. Shows both available configurations and currently active sites.")
+    @McpTool(name = "list_nginx_sites", description = "List all available and enabled Nginx sites. Shows both available configurations and currently active sites.")
     public String listNginxSites(
-            @ToolParam(description = "The target server name where Nginx is running") String serverName) {
+            @McpToolParam(description = "The target server name where Nginx is running") String serverName) {
         log.info("Listing Nginx sites on server: {}", serverName);
         
         try {
@@ -149,10 +149,10 @@ public class NginxConfigurationTool {
         }
     }
 
-    @Tool(name = "get_nginx_site_config", description = "Get the configuration content for a specific Nginx site. Useful for reviewing or debugging site configurations.")
+    @McpTool(name = "get_nginx_site_config", description = "Get the configuration content for a specific Nginx site. Useful for reviewing or debugging site configurations.")
     public String getNginxSiteConfig(
-            @ToolParam(description = "The target server name where Nginx is running") String serverName,
-            @ToolParam(description = "The site name to get configuration for") String siteName) {
+            @McpToolParam(description = "The target server name where Nginx is running") String serverName,
+            @McpToolParam(description = "The site name to get configuration for") String siteName) {
         log.info("Getting Nginx site configuration for: {} on server: {}", siteName, serverName);
         
         try {
@@ -164,12 +164,12 @@ public class NginxConfigurationTool {
         }
     }
 
-    @Tool(name = "create_reverse_proxy", description = "Create an Nginx reverse proxy configuration for load balancing or API gateway. Perfect for microservices architecture.")
+    @McpTool(name = "create_reverse_proxy", description = "Create an Nginx reverse proxy configuration for load balancing or API gateway. Perfect for microservices architecture.")
     public String createReverseProxy(
-            @ToolParam(description = "The target server name where Nginx is running") String serverName,
-            @ToolParam(description = "The domain name for the proxy (e.g., 'api.example.com')") String domainName,
-            @ToolParam(description = "The backend URL to proxy to (e.g., 'http://localhost:3000')") String backendUrl,
-            @ToolParam(description = "Port to listen on (default: 80)") int port) {
+            @McpToolParam(description = "The target server name where Nginx is running") String serverName,
+            @McpToolParam(description = "The domain name for the proxy (e.g., 'api.example.com')") String domainName,
+            @McpToolParam(description = "The backend URL to proxy to (e.g., 'http://localhost:3000')") String backendUrl,
+            @McpToolParam(description = "Port to listen on (default: 80)") int port) {
         log.info("Creating reverse proxy: {} -> {} on server: {}", domainName, backendUrl, serverName);
         
         try {
@@ -190,14 +190,14 @@ public class NginxConfigurationTool {
         }
     }
 
-    @Tool(name = "create_ssl_site", description = "Create an Nginx site with SSL/HTTPS configuration. Requires SSL certificate files to be already present on the server.")
+    @McpTool(name = "create_ssl_site", description = "Create an Nginx site with SSL/HTTPS configuration. Requires SSL certificate files to be already present on the server.")
     public String createSslSite(
-            @ToolParam(description = "The target server name where Nginx is running") String serverName,
-            @ToolParam(description = "The domain name (e.g., 'secure.example.com')") String domainName,
-            @ToolParam(description = "Path to SSL certificate file (e.g., '/etc/ssl/certs/example.com.crt')") String certPath,
-            @ToolParam(description = "Path to SSL private key file (e.g., '/etc/ssl/private/example.com.key')") String keyPath,
-            @ToolParam(description = "Document root for static files or null for reverse proxy") String documentRoot,
-            @ToolParam(description = "Backend URL for reverse proxy or null for static site") String proxyPass) {
+            @McpToolParam(description = "The target server name where Nginx is running") String serverName,
+            @McpToolParam(description = "The domain name (e.g., 'secure.example.com')") String domainName,
+            @McpToolParam(description = "Path to SSL certificate file (e.g., '/etc/ssl/certs/example.com.crt')") String certPath,
+            @McpToolParam(description = "Path to SSL private key file (e.g., '/etc/ssl/private/example.com.key')") String keyPath,
+            @McpToolParam(description = "Document root for static files or null for reverse proxy") String documentRoot,
+            @McpToolParam(description = "Backend URL for reverse proxy or null for static site") String proxyPass) {
         log.info("Creating SSL site: {} on server: {}", domainName, serverName);
         
         try {
@@ -221,10 +221,10 @@ public class NginxConfigurationTool {
         }
     }
 
-    @Tool(name = "backup_nginx_config", description = "Create a backup of the entire Nginx configuration directory. Essential before making major changes.")
+    @McpTool(name = "backup_nginx_config", description = "Create a backup of the entire Nginx configuration directory. Essential before making major changes.")
     public String backupNginxConfig(
-            @ToolParam(description = "The target server name where Nginx is running") String serverName,
-            @ToolParam(description = "Path where to save the backup file (e.g., '/tmp/nginx-backup.tar.gz')") String backupPath) {
+            @McpToolParam(description = "The target server name where Nginx is running") String serverName,
+            @McpToolParam(description = "Path where to save the backup file (e.g., '/tmp/nginx-backup.tar.gz')") String backupPath) {
         log.info("Backing up Nginx configuration on server: {} to: {}", serverName, backupPath);
         
         try {
