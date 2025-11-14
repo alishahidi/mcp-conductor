@@ -4,7 +4,7 @@
 
 ![MCP Conductor](https://img.shields.io/badge/MCP-Conductor-blue?style=for-the-badge&logo=spring&logoColor=white)
 
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4.1-brightgreen.svg?style=flat-square)](https://spring.io/projects/spring-boot)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3.6-brightgreen.svg?style=flat-square)](https://spring.io/projects/spring-boot)
 [![Spring AI](https://img.shields.io/badge/Spring%20AI-1.1.0--RC1-blue.svg?style=flat-square)](https://spring.io/projects/spring-ai)
 [![Java](https://img.shields.io/badge/Java-21-orange.svg?style=flat-square)](https://www.oracle.com/java/)
 [![MCP](https://img.shields.io/badge/MCP-Compatible-purple.svg?style=flat-square)](https://modelcontextprotocol.io)
@@ -87,7 +87,7 @@ The setup script will:
 ### Manual Setup
 
 #### Prerequisites
-- **Java 21+** (required for Spring Boot 3.4.1)
+- **Java 21+** (required for Spring Boot 3.3.6)
 - **Maven 3.8+** for building
 - **SSH access** to target servers
 - **Docker** (optional, for container management)
