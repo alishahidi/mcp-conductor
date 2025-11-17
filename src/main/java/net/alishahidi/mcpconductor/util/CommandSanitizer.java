@@ -7,6 +7,14 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.List;
 
+/**
+ * Utility for sanitizing shell arguments and paths.
+ * This class provides helper methods for escaping arguments and detecting path traversal.
+ *
+ * NOTE: For command validation, use CommandValidator instead.
+ * CommandValidator provides comprehensive validation that allows legitimate shell usage
+ * while blocking dangerous patterns. This class is for specific sanitization tasks.
+ */
 @Component
 @Slf4j
 public class CommandSanitizer {
@@ -15,78 +23,54 @@ public class CommandSanitizer {
             "rm", "del", "format", "fdisk", "mkfs", "dd", "shutdown", "reboot", "halt", "poweroff"
     );
 
-    private static final List<Pattern> INJECTION_PATTERNS = List.of(
-            Pattern.compile("[;&|`$(){}\\[\\]<>]"),  // Command separators and substitution
-            Pattern.compile("\\$\\([^)]*\\)"),        // Command substitution
-            Pattern.compile("`[^`]*`"),               // Backtick substitution
-            Pattern.compile("\\$\\{[^}]*\\}"),        // Variable substitution
-            Pattern.compile(">>|<<"),                 // Redirection operators
-            Pattern.compile("\\|\\|"),                // OR operator
-            Pattern.compile("&&"),                    // AND operator
-            Pattern.compile("\\\\[xuU][0-9a-fA-F]+") // Unicode escapes
+    private static final List<Pattern> SUSPICIOUS_PATTERNS = List.of(
+            Pattern.compile("eval\\s+"),                      // eval usage
+            Pattern.compile("(wget|curl)\\s+.*\\|\\s*(sh|bash)"), // Download and execute
+            Pattern.compile("nc\\s+-l"),                      // Netcat listener
+            Pattern.compile("bash\\s+-i"),                    // Interactive bash
+            Pattern.compile("/etc/(passwd|shadow)"),          // Sensitive files
+            Pattern.compile("%2[efEF]"),                      // URL encoded slashes
+            Pattern.compile("\\\\x[0-9a-fA-F]{2}")           // Hex encoding
     );
 
-    private static final Set<String> SAFE_CHARACTERS = Set.of(
-            "a-z", "A-Z", "0-9", "-", "_", ".", "/", ":", " ", "=", "+"
-    );
-
+    /**
+     * Minimal sanitization - only remove truly dangerous characters.
+     * Preserves legitimate shell usage.
+     */
     public String sanitizeCommand(String command) {
         if (command == null || command.trim().isEmpty()) {
             return "";
         }
 
         String sanitized = command.trim();
-        
-        // Remove null bytes
+
+        // Remove null bytes (can hide malicious content)
         sanitized = sanitized.replace("\0", "");
-        
-        // Remove potential path traversal
-        sanitized = sanitized.replaceAll("\\.\\./", "");
-        sanitized = sanitized.replaceAll("\\\\\\.\\.\\\\", "");
-        
-        // Remove command substitution attempts
-        sanitized = removeCommandSubstitution(sanitized);
-        
-        // Remove dangerous operators
-        sanitized = removeDangerousOperators(sanitized);
-        
-        // Escape special characters
-        sanitized = escapeSpecialCharacters(sanitized);
-        
-        log.debug("Command sanitized from '{}' to '{}'", command, sanitized);
+
+        // Remove carriage returns (can hide commands)
+        sanitized = sanitized.replace("\r", "");
+
+        log.debug("Command minimal sanitization applied");
         return sanitized;
     }
 
+    /**
+     * Check if command contains suspicious patterns.
+     * This is a helper method - use CommandValidator.isValid() for full validation.
+     */
     public boolean isCommandSafe(String command) {
         if (command == null || command.trim().isEmpty()) {
             return false;
         }
 
-        String normalizedCommand = command.toLowerCase().trim();
-        
-        // Check for dangerous commands
-        String[] commandParts = normalizedCommand.split("\\s+");
-        if (commandParts.length > 0) {
-            String baseCommand = extractBaseCommand(commandParts[0]);
-            if (DANGEROUS_COMMANDS.contains(baseCommand)) {
-                log.warn("Dangerous command detected: {}", baseCommand);
-                return false;
-            }
-        }
-        
-        // Check for injection patterns
-        for (Pattern pattern : INJECTION_PATTERNS) {
+        // Check for suspicious patterns that are never legitimate
+        for (Pattern pattern : SUSPICIOUS_PATTERNS) {
             if (pattern.matcher(command).find()) {
-                log.warn("Command injection pattern detected in: {}", command);
+                log.warn("Suspicious pattern detected in command: {}", command);
                 return false;
             }
         }
-        
-        // Check for suspicious patterns
-        if (containsSuspiciousPatterns(command)) {
-            return false;
-        }
-        
+
         return true;
     }
 

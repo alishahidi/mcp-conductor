@@ -6,18 +6,23 @@ import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
 import com.github.dockerjava.transport.DockerHttpClient;
+import net.alishahidi.mcpconductor.util.PlatformDetector;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.Duration;
 
 @Configuration
+@RequiredArgsConstructor
 @Slf4j
 public class DockerConfig {
 
-    @Value("${docker.host:unix:///var/run/docker.sock}")
+    private final PlatformDetector platformDetector;
+
+    @Value("${docker.host:}")
     private String dockerHost;
 
     @Value("${docker.api.version:}")
@@ -40,8 +45,16 @@ public class DockerConfig {
 
     @Bean
     public DockerClient dockerClient() {
+        // Use platform-specific Docker host if not explicitly configured
+        String effectiveDockerHost = (dockerHost == null || dockerHost.isBlank())
+                ? platformDetector.getDefaultDockerHost()
+                : dockerHost;
+
+        log.info("Initializing Docker client for platform: {} with host: {}",
+                platformDetector.getCurrentPlatform(), effectiveDockerHost);
+
         DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
-                .withDockerHost(dockerHost)
+                .withDockerHost(effectiveDockerHost)
                 .withDockerTlsVerify(tlsVerify)
                 .withDockerCertPath(certPath)
                 .withApiVersion(apiVersion)
@@ -62,7 +75,7 @@ public class DockerConfig {
                 .withDockerHttpClient(httpClient)
                 .build();
 
-        log.info("Docker client initialized for host: {}", dockerHost);
+        log.info("Docker client initialized successfully for host: {}", effectiveDockerHost);
         return client;
     }
 }
