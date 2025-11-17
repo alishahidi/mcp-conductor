@@ -7,8 +7,19 @@ import lombok.extern.slf4j.Slf4j;
 import jakarta.annotation.PostConstruct;
 
 /**
- * Cross-platform detection utility for determining operating system and platform-specific configurations.
- * Supports Linux, Windows, and macOS for comprehensive cross-platform compatibility.
+ * Platform detection utility for the MCP Conductor server itself (not target servers).
+ *
+ * The MCP Conductor server is a cross-platform Spring Boot application that can run on:
+ * - Linux (Ubuntu, CentOS, Fedora, etc.)
+ * - Windows (Windows 10/11, Windows Server)
+ * - macOS (Intel and Apple Silicon)
+ *
+ * This detector is used for:
+ * - Docker host configuration (Unix socket vs Windows named pipe)
+ * - Platform-specific server settings
+ *
+ * NOTE: Target servers managed by MCP Conductor are Linux-only.
+ * All SSH commands execute on Linux systems regardless of where the MCP server runs.
  */
 @Component
 @Slf4j
@@ -22,16 +33,17 @@ public class PlatformDetector {
         UNKNOWN
     }
 
+    /**
+     * Linux package managers (for target server management).
+     * These are used by PackageService to manage Linux servers via SSH.
+     */
     public enum PackageManager {
         APT,        // Debian/Ubuntu
         YUM,        // RHEL/CentOS 6-7
         DNF,        // Fedora/RHEL 8+
         PACMAN,     // Arch Linux
         ZYPPER,     // openSUSE
-        BREW,       // macOS/Linux Homebrew
-        CHOCOLATEY, // Windows
-        WINGET,     // Windows
-        SCOOP,      // Windows
+        BREW,       // Homebrew on Linux
         UNKNOWN
     }
 
@@ -133,79 +145,66 @@ public class PlatformDetector {
     }
 
     /**
-     * Get process list command for the platform
+     * NOTE: The methods below are NOT used for target server management.
+     * All target servers are Linux-only and use standard Linux commands.
+     * These methods are kept for potential future local operations on the MCP server itself.
+     */
+
+    /**
+     * Get process list command (Linux only - for target servers)
      */
     public String getProcessListCommand(int limit) {
-        return switch (currentPlatform) {
-            case WINDOWS -> limit > 0 ?
-                String.format("powershell -Command \"Get-Process | Sort-Object CPU -Descending | Select-Object -First %d\"", limit) :
-                "powershell -Command \"Get-Process | Sort-Object CPU -Descending\"";
-            case LINUX, MACOS -> limit > 0 ?
-                String.format("ps aux --sort=-%scpu | head -%d", "%", limit + 1) :
-                "ps aux --sort=-%cpu";
-            default -> "ps aux";
-        };
+        // Target servers are always Linux
+        return limit > 0 ?
+            String.format("ps aux --sort=-%scpu | head -%d", "%", limit + 1) :
+            "ps aux --sort=-%cpu";
     }
 
     /**
-     * Get disk usage command for the platform
+     * Get disk usage command (Linux only - for target servers)
      */
     public String getDiskUsageCommand() {
-        return switch (currentPlatform) {
-            case WINDOWS -> "powershell -Command \"Get-PSDrive -PSProvider FileSystem | Select-Object Name, Used, Free, @{Name='Size';Expression={$_.Used+$_.Free}}\"";
-            case LINUX, MACOS -> "df -h";
-            default -> "df";
-        };
+        // Target servers are always Linux
+        return "df -h";
     }
 
     /**
-     * Get memory usage command for the platform
+     * Get memory usage command (Linux only - for target servers)
      */
     public String getMemoryUsageCommand() {
-        return switch (currentPlatform) {
-            case WINDOWS -> "powershell -Command \"Get-CimInstance Win32_OperatingSystem | Select-Object TotalVisibleMemorySize, FreePhysicalMemory\"";
-            case LINUX, MACOS -> "free -h";
-            default -> "free";
-        };
+        // Target servers are always Linux
+        return "free -h";
     }
 
     /**
-     * Get network info command for the platform
+     * Get network info command (Linux only - for target servers)
      */
     public String getNetworkInfoCommand() {
-        return switch (currentPlatform) {
-            case WINDOWS -> "ipconfig /all";
-            case LINUX -> "ip addr show";
-            case MACOS -> "ifconfig";
-            default -> "ifconfig";
-        };
+        // Target servers are always Linux
+        return "ip addr show";
     }
 
     /**
-     * Get system uptime command for the platform
+     * Get system uptime command (Linux only - for target servers)
      */
     public String getUptimeCommand() {
-        return switch (currentPlatform) {
-            case WINDOWS -> "powershell -Command \"(Get-CimInstance Win32_OperatingSystem).LastBootUpTime\"";
-            case LINUX, MACOS -> "uptime";
-            default -> "uptime";
-        };
+        // Target servers are always Linux
+        return "uptime";
     }
 
     /**
-     * Get service status command for the platform
+     * Get service status command (Linux only - for target servers)
      */
     public String getServiceStatusCommand(String serviceName) {
-        return switch (currentPlatform) {
-            case WINDOWS -> String.format("sc query \"%s\"", serviceName);
-            case LINUX -> String.format("systemctl status %s", serviceName);
-            case MACOS -> String.format("launchctl list | grep %s", serviceName);
-            default -> String.format("service %s status", serviceName);
-        };
+        // Target servers are always Linux with systemd
+        return String.format("systemctl status %s", serviceName);
     }
 
     /**
-     * Detect available package manager on the system
+     * Detect available package manager on Linux target servers.
+     *
+     * NOTE: This is for target servers being managed, not the MCP server itself.
+     * All target servers are Linux-only.
      */
     public PackageManager detectPackageManager(String hint) {
         // If hint is provided and valid, use it
@@ -213,23 +212,12 @@ public class PlatformDetector {
             try {
                 return PackageManager.valueOf(hint.toUpperCase());
             } catch (IllegalArgumentException e) {
-                log.warn("Invalid package manager hint: {}, attempting auto-detection", hint);
+                log.warn("Invalid package manager hint: {}, defaulting to apt", hint);
             }
         }
 
-        // Platform-specific detection
-        return switch (currentPlatform) {
-            case WINDOWS -> PackageManager.WINGET; // Default to winget on Windows
-            case MACOS -> PackageManager.BREW;     // Default to brew on macOS
-            case LINUX -> detectLinuxPackageManager();
-            default -> PackageManager.UNKNOWN;
-        };
-    }
-
-    private PackageManager detectLinuxPackageManager() {
-        // Check for common Linux package managers
-        // This would ideally execute commands to check, but for now return apt as most common
-        // In production, you'd check: which apt-get, which yum, etc.
+        // Default to apt (most common for Ubuntu/Debian)
+        // In practice, the package manager is explicitly specified per server
         return PackageManager.APT;
     }
 

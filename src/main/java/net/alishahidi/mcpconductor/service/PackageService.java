@@ -146,95 +146,71 @@ public class PackageService {
 
     private String getInstallCommand(String packageManager, String packageName) {
         return switch (packageManager.toLowerCase()) {
-            // Linux package managers
+            // Debian/Ubuntu
             case "apt" -> "DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y " + packageName;
+            // RHEL/CentOS 6-7
             case "yum" -> "yum install -y " + packageName;
+            // RHEL/CentOS 8+, Fedora
             case "dnf" -> "dnf install -y " + packageName;
+            // Arch Linux
             case "pacman" -> "pacman -S --noconfirm " + packageName;
+            // openSUSE
             case "zypper" -> "zypper install -y " + packageName;
-            // macOS package manager
+            // Homebrew on Linux
             case "brew" -> "brew install " + packageName;
-            // Windows package managers
-            case "winget" -> "winget install --id " + packageName + " --silent --accept-package-agreements";
-            case "choco", "chocolatey" -> "choco install " + packageName + " -y";
-            case "scoop" -> "scoop install " + packageName;
             default -> throw new ValidationException("packageManager", packageManager,
-                    "Unsupported package manager. Supported: apt, yum, dnf, pacman, zypper, brew, winget, choco, scoop");
+                    "Unsupported package manager. Supported for Linux: apt, yum, dnf, pacman, zypper, brew");
         };
     }
 
     private String getUninstallCommand(String packageManager, String packageName) {
         return switch (packageManager.toLowerCase()) {
-            // Linux package managers
             case "apt" -> "apt-get remove -y " + packageName;
             case "yum" -> "yum remove -y " + packageName;
             case "dnf" -> "dnf remove -y " + packageName;
             case "pacman" -> "pacman -R --noconfirm " + packageName;
             case "zypper" -> "zypper remove -y " + packageName;
-            // macOS package manager
             case "brew" -> "brew uninstall " + packageName;
-            // Windows package managers
-            case "winget" -> "winget uninstall --id " + packageName + " --silent";
-            case "choco", "chocolatey" -> "choco uninstall " + packageName + " -y";
-            case "scoop" -> "scoop uninstall " + packageName;
             default -> throw new ValidationException("packageManager", packageManager,
-                    "Unsupported package manager");
+                    "Unsupported package manager. Supported for Linux: apt, yum, dnf, pacman, zypper, brew");
         };
     }
 
     private String getUpdateCommand(String packageManager) {
         return switch (packageManager.toLowerCase()) {
-            // Linux package managers
             case "apt" -> "DEBIAN_FRONTEND=noninteractive apt-get update && apt-get upgrade -y";
             case "yum" -> "yum update -y";
             case "dnf" -> "dnf update -y";
             case "pacman" -> "pacman -Syu --noconfirm";
             case "zypper" -> "zypper update -y";
-            // macOS package manager
             case "brew" -> "brew update && brew upgrade";
-            // Windows package managers
-            case "winget" -> "winget upgrade --all --silent";
-            case "choco", "chocolatey" -> "choco upgrade all -y";
-            case "scoop" -> "scoop update *";
             default -> throw new ValidationException("packageManager", packageManager,
-                    "Unsupported package manager");
+                    "Unsupported package manager. Supported for Linux: apt, yum, dnf, pacman, zypper, brew");
         };
     }
 
     private String getSearchCommand(String packageManager, String query) {
         return switch (packageManager.toLowerCase()) {
-            // Linux package managers
             case "apt" -> "apt-cache search " + query;
             case "yum" -> "yum search " + query;
             case "dnf" -> "dnf search " + query;
             case "pacman" -> "pacman -Ss " + query;
             case "zypper" -> "zypper search " + query;
-            // macOS package manager
             case "brew" -> "brew search " + query;
-            // Windows package managers
-            case "winget" -> "winget search " + query;
-            case "choco", "chocolatey" -> "choco search " + query;
-            case "scoop" -> "scoop search " + query;
             default -> throw new ValidationException("packageManager", packageManager,
-                    "Unsupported package manager");
+                    "Unsupported package manager. Supported for Linux: apt, yum, dnf, pacman, zypper, brew");
         };
     }
 
     private String getCheckInstalledCommand(String packageManager, String packageName) {
         return switch (packageManager.toLowerCase()) {
-            // Linux package managers
             case "apt" -> "dpkg -l | grep -q '^ii.*" + packageName + "'";
             case "yum", "dnf" -> "rpm -qa | grep -q " + packageName;
             case "pacman" -> "pacman -Q " + packageName + " > /dev/null 2>&1";
             case "zypper" -> "zypper se -i " + packageName + " | grep -q '^i'";
-            // macOS package manager
             case "brew" -> "brew list " + packageName + " > /dev/null 2>&1";
-            // Windows package managers
-            case "winget" -> "winget list --id " + packageName + " > $null 2>&1";
-            case "choco", "chocolatey" -> "choco list --local-only " + packageName + " | findstr /C:\"" + packageName + "\"";
-            case "scoop" -> "scoop list " + packageName + " > $null 2>&1";
             default -> throw new ValidationException("packageManager", packageManager,
-                    "Unsupported package manager");
+                    "Unsupported package manager. Supported for Linux: apt, yum, dnf, pacman, zypper, brew");
         };
     }
 }
