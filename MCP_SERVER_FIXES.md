@@ -113,8 +113,8 @@ import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 
 // New imports (Spring AI MCP)
-import org.springframework.ai.mcp.server.annotation.McpTool;
-import org.springframework.ai.mcp.server.annotation.McpToolParam;
+import org.springaicommunity.mcp.annotation.McpTool;
+import org.springaicommunity.mcp.annotation.McpToolParam;
 
 // Old annotation usage
 @Tool(name = "execute_command", description = "...")

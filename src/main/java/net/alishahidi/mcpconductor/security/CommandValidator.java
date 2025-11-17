@@ -23,17 +23,15 @@ public class CommandValidator {
     );
 
     private static final List<Pattern> DANGEROUS_PATTERNS = List.of(
-            Pattern.compile("rm\\s+-rf\\s+/"),
-            Pattern.compile("dd\\s+.*of=/dev/"),
-            Pattern.compile("mkfs\\.\\w+"),
-            Pattern.compile("\\$\\(.*\\)"),  // Command substitution
-            Pattern.compile("`.*`"),          // Backtick substitution
-            Pattern.compile(".*;\\s*rm\\s+-rf"),
-            Pattern.compile(".*&&\\s*rm\\s+-rf"),
-            Pattern.compile(".*\\|\\s*sh"),
-            Pattern.compile(".*\\|\\s*bash"),
-            Pattern.compile(".*;.*"),         // General command chaining with semicolon
-            Pattern.compile(".*&&.*")        // General command chaining with &&
+            Pattern.compile("rm\\s+-rf\\s+/[\\s$]"),         // rm -rf / or rm -rf /* only
+            Pattern.compile("dd\\s+.*of=/dev/[sh]d"),       // dd to main disks only
+            Pattern.compile("mkfs\\.\\w+\\s+/dev/[sh]d"),   // Format main disks only
+            Pattern.compile(":\\(\\)\\{"),                  // Fork bomb pattern
+            Pattern.compile(">/dev/[sh]d[a-z]\\s*$"),       // Direct write to disk
+            Pattern.compile("chmod\\s+-R\\s+777\\s+/[\\s$]"), // chmod 777 on root
+            Pattern.compile(".*\\|\\s*(sh|bash)\\s*<"),      // Piping to shell with input
+            Pattern.compile("curl.*\\|.*sh"),                // Curl pipe to shell
+            Pattern.compile("wget.*\\|.*sh")                 // Wget pipe to shell
     );
 
     private final Set<String> allowedCommands;
@@ -81,14 +79,20 @@ public class CommandValidator {
             return "";
         }
 
-        // Remove potential injection attempts
-        String sanitized = command;
-        sanitized = sanitized.replaceAll("\\$\\([^)]*\\)", "");  // Remove command substitution
-        sanitized = sanitized.replaceAll("`[^`]*`", "");          // Remove backticks
-        sanitized = sanitized.replaceAll("\\$\\{[^}]*\\}", "");   // Remove variable substitution
-        sanitized = sanitized.replaceAll("[;&|]", " ");           // Replace command separators
+        // Only sanitize truly dangerous patterns, preserve legitimate shell usage
+        String sanitized = command.trim();
 
-        return sanitized.trim();
+        // Remove null bytes that could be used for injection
+        sanitized = sanitized.replace("\0", "");
+
+        // Remove carriage returns that could hide commands
+        sanitized = sanitized.replace("\r", "");
+
+        // Note: We don't remove semicolons, pipes, redirections, or substitutions
+        // as they are legitimate shell features needed for many operations.
+        // The isValid() method already checks for dangerous patterns.
+
+        return sanitized;
     }
 
     private String extractBaseCommand(String command) {

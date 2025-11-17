@@ -1,8 +1,8 @@
 package net.alishahidi.mcpconductor.tools;
 
 import net.alishahidi.mcpconductor.service.PackageService;
-import org.springframework.ai.mcp.server.annotation.McpTool;
-import org.springframework.ai.mcp.server.annotation.McpToolParam;
+import org.springaicommunity.mcp.annotation.McpTool;
+import org.springaicommunity.mcp.annotation.McpToolParam;
 import org.springframework.stereotype.Component;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

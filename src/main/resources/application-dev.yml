@@ -7,8 +7,9 @@ spring:
 security:
   enabled: false  # Disable security for development
   command:
-    strict-mode: false  # Allow all commands in dev mode
+    strict-mode: false  # Allow all commands in dev mode - validation still applies
     allowed:
+      # Basic system commands
       - ls
       - cat
       - echo
@@ -16,58 +17,151 @@ security:
       - whoami
       - uname
       - date
+      - touch
+      - printf
+      - tee
+      - sed
+      - awk
+      - cut
+      - sort
+      - uniq
+      - wc
+      - diff
+
+      # Process management
       - ps
       - top
+      - htop
+      - kill
+      - killall
+      - pgrep
+      - pkill
+
+      # System info
       - df
       - du
       - free
       - uptime
       - netstat
+      - ss
+      - ip
+      - ifconfig
+      - hostname
+      - lsblk
+      - lsof
+      - dmesg
+
+      # Service management
       - systemctl
       - service
+      - journalctl
+
+      # File operations
+      - chmod
+      - chown
+      - mkdir
+      - rmdir
+      - rm
+      - cp
+      - mv
+      - ln
+      - readlink
+      - stat
+
+      # File viewing/editing
+      - tail
+      - head
+      - less
+      - more
+      - grep
+      - egrep
+      - fgrep
+      - find
+      - locate
+      - which
+      - whereis
+
+      # Archiving
+      - tar
+      - gzip
+      - gunzip
+      - bzip2
+      - bunzip2
+      - zip
+      - unzip
+      - xz
+
+      # Network
+      - curl
+      - wget
+      - ping
+      - traceroute
+      - nslookup
+      - dig
+      - nc
+      - netcat
+
+      # Development tools
       - docker
       - git
       - npm
       - yarn
       - node
+      - python
+      - python3
+      - pip
+      - pip3
       - java
+      - javac
       - mvn
       - gradle
+      - make
+      - gcc
+      - g++
+
+      # Package managers
       - apt
+      - apt-get
+      - aptitude
       - yum
       - dnf
+      - pacman
+      - zypper
+      - brew
+
+      # Web servers
       - nginx
+      - apache2
+      - httpd
       - pm2
-      - tail
-      - head
-      - grep
-      - find
-      - chmod
-      - chown
-      - mkdir
-      - rm
-      - cp
-      - mv
-      - tar
-      - zip
-      - unzip
-      - curl
-      - wget
+
+      # Database clients
+      - mysql
+      - psql
+      - mongo
+      - redis-cli
+
+      # Text editors (non-interactive mode)
+      - nano
+      - vi
+      - vim
+      - emacs
 
   path:
     allowed:
-      - /home
-      - /var
-      - /opt
-      - /tmp
-      - /usr/local
-      - /etc/nginx
-      - /etc/systemd
+      # Empty list means allow all paths except blocked ones in dev mode
+      # For production, specify explicit paths
 
     blocked:
       - /etc/passwd
       - /etc/shadow
-      - /root/.ssh
+      - /etc/sudoers
+      - /etc/ssh/sshd_config
+      - /proc/kcore
+      - /dev/mem
+      - /dev/kmem
+      - /sys
+      - /boot/grub
 
 # Rate Limiting (relaxed for dev)
 rate-limit:

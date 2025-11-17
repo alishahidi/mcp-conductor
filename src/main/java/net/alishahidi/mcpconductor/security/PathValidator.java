@@ -42,24 +42,44 @@ public class PathValidator {
         }
 
         try {
+            // Normalize the path
             Path path = Paths.get(pathStr).normalize();
             String normalizedPath = path.toString();
 
-            // Check for path traversal attempts
-            if (normalizedPath.contains("..")) {
+            // Check for path traversal attempts in the original string
+            // Only flag if .. appears outside of initial normalization
+            if (pathStr.contains("/../") || pathStr.endsWith("/..") ||
+                pathStr.equals("..") || pathStr.startsWith("../")) {
                 log.warn("Path traversal attempt detected: {}", pathStr);
                 return false;
             }
 
-            // Check against blocked paths
-            if (blockedPaths.stream().anyMatch(normalizedPath::startsWith)) {
-                log.warn("Access to restricted path blocked: {}", normalizedPath);
-                return false;
+            // Convert relative paths to absolute for validation
+            if (!path.isAbsolute()) {
+                // For relative paths, just ensure they don't traverse upward unsafely
+                log.debug("Accepting relative path: {}", pathStr);
+                return !pathStr.contains("/../") && !pathStr.startsWith("../");
+            }
+
+            // Check against blocked paths (for absolute paths)
+            for (String blockedPath : blockedPaths) {
+                if (normalizedPath.equals(blockedPath) || normalizedPath.startsWith(blockedPath + "/")) {
+                    log.warn("Access to restricted path blocked: {}", normalizedPath);
+                    return false;
+                }
+            }
+
+            // If no allowed paths configured or empty, allow all non-blocked absolute paths
+            if (allowedBasePaths.isEmpty()) {
+                log.debug("No path restrictions configured, allowing: {}", normalizedPath);
+                return true;
             }
 
             // Check if path is within allowed base paths
             boolean isAllowed = allowedBasePaths.stream()
-                    .anyMatch(normalizedPath::startsWith);
+                    .anyMatch(allowedPath ->
+                        normalizedPath.equals(allowedPath) ||
+                        normalizedPath.startsWith(allowedPath + "/"));
 
             if (!isAllowed) {
                 log.warn("Path outside allowed directories: {}", normalizedPath);
